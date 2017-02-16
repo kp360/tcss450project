@@ -10,8 +10,14 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
 public class JokesPage extends AppCompatActivity implements JokeFragment.OnListFragmentInteractionListener  {
     @Override
-    public void onListFragmentInteraction(Joke course) {
+    public void onListFragmentInteraction(Joke joke) {
 
+        CustomJokeDialogFragment jokeDetailFragment = new CustomJokeDialogFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(jokeDetailFragment.COURSE_ITEM_SELECTED, joke);
+        jokeDetailFragment.setArguments(args);
+
+        jokeDetailFragment.show(getSupportFragmentManager(), "laucnh?");
     }
 
     @Override
