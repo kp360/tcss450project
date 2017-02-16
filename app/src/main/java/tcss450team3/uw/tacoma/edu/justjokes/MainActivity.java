@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
                 register(url);
             }
         });
-
-
     }
 
     public void login(View view) {
