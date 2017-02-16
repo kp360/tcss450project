@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
         userLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DownloadUsersTask task = new DownloadUsersTask();
-                task.execute(new String[]{LOGIN_URL});
+                String url = buildLoginURL(v);
+                login(url);
             }
         });
 
@@ -57,17 +57,16 @@ public class MainActivity extends AppCompatActivity {
         userRegisButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Registering...");
                 String url = buildRegisURL(v);
                 register(url);
             }
         });
     }
 
-    public void login(View view) {
+    public void login(String url) {
 
         DownloadUsersTask task = new DownloadUsersTask();
-        task.execute(new String[]{LOGIN_URL});
+        task.execute(new String[]{url.toString()});
     }
 
     public void register(String url) {
@@ -80,35 +79,30 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /**
-     * Parses the json string, returns an error message if unsuccessful.
-     * Returns course list if success.
-     * @param userJSON
-     * @return reason or null if successful.
-     */
-    public boolean parseUserJSON(String userJSON) {
-        String reason = null;
-        boolean authorized = false;
-        if (userJSON != null) {
-            try {
-                JSONArray arr = new JSONArray(userJSON);
-                for (int i = 0; i < arr.length(); i++) {
-                    JSONObject obj = arr.getJSONObject(i);
+    private String buildLoginURL(View v) {
 
-                    if ( obj.getString(USERNAME).equals(mUserUsernameEditText.getText().toString()) &&
-                            obj.getString(PASSWORD).equals(mUserPasswordEditText.getText().toString())) {
-//                        Intent intent = new Intent(this, JokesPage.class);
-//                        startActivity(intent);
-                        authorized = true;
-                        break;
-                    }
-                }
-            } catch (JSONException e) {
-                Log.d("userParser", "Unable to parse data, Reason: " + e.getMessage());
-            }
+        StringBuilder sb = new StringBuilder(LOGIN_URL);
+
+        try {
+
+            String userUsername = mUserUsernameEditText.getText().toString();
+            sb.append("userName=");
+            sb.append(userUsername);
+
+
+            String userPassword = mUserPasswordEditText.getText().toString();
+            sb.append("&passWord=");
+            sb.append(URLEncoder.encode(userPassword, "UTF-8"));
+
+
+            Log.i("userLogin", sb.toString());
 
         }
-        return authorized;
+        catch(Exception e) {
+            Toast.makeText(v.getContext(), "Something wrong with the url" + e.getMessage(), Toast.LENGTH_LONG)
+                    .show();
+        }
+        return sb.toString();
     }
 
     private String buildRegisURL(View v) {
@@ -170,17 +164,24 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            // Something wrong with the network or the URL.
-            if (result.startsWith("Unable to")) {
-                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG)
-                        .show();
-                return;
-            }
-
-            boolean isAuthorized = parseUserJSON(result);
-            if (isAuthorized) {
-                Intent intent = new Intent(getApplicationContext(), JokesPage.class);
-                startActivity(intent);
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+                String status = (String) jsonObject.get("result");
+                if (status.equals("success")) {
+                    Toast.makeText(getApplicationContext(), "User logged in!"
+                            , Toast.LENGTH_LONG)
+                            .show();
+                    Intent intent = new Intent(getApplicationContext(), JokesPage.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Failed to login: "
+                                    + jsonObject.get("error")
+                            , Toast.LENGTH_LONG)
+                            .show();
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), "Something wrong with the data" +
+                        e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
         }
