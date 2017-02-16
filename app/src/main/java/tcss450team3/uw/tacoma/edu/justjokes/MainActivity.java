@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String USERNAME = "userName";
     private String PASSWORD = "passWord";
- 
+
     private boolean loggedIn = false;
 
     @Override
