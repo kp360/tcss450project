@@ -32,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean loggedIn = false;
 
-    // Internet dropped while committing changes.
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
