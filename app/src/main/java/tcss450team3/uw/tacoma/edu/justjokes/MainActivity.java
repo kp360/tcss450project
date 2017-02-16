@@ -14,6 +14,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
+        openJokesPage(view);
+    }
+
+    public void openJokesPage(View view) {
         Intent intent = new Intent(this, JokesPage.class);
         startActivity(intent);
     }

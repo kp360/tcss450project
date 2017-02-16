@@ -32,4 +32,15 @@
         android:layout_height="wrap_content"
         android:text="@string/submit"
         android:onClick="login"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/register" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bypassLogin"
+        android:onClick="openJokesPage"/>
 </LinearLayout>
