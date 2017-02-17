@@ -12,20 +12,33 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link Joke} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * .
+ * This class assists the JokeFragment in displaying a smooth, scrolling list of jokes.
+ *
+ * @author Vlad (2.15.17)
  */
 public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecyclerViewAdapter.ViewHolder> {
 
     private final List<Joke> mValues;
     private final OnListFragmentInteractionListener mListener;
 
+    /**
+     * Auto-generated method, not modified by us.
+     *
+     * @param items Items to display in the list.
+     * @param listener An OnListFragmentInteractionListener object.
+     */
     public MyJokeRecyclerViewAdapter(List<Joke> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
 
+    /**
+     * Auto-generated method, not modified by us.
+     *
+     * @param parent A ViewGroup object.
+     * @param viewType An integer to specify the view type.
+     * @return Returns a ViewHolder object.
+     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -33,6 +46,12 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         return new ViewHolder(view);
     }
 
+    /**
+     * Auto-generated method, slightly modified by us.
+     *
+     * @param holder A ViewHolder object.
+     * @param position An integer to specify the item's position.
+     */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
@@ -51,11 +70,19 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         });
     }
 
+    /**
+     * Returns how many items are in the mValues list.
+     *
+     * @return Returns the amount of items in the mValues list.
+     */
     @Override
     public int getItemCount() {
         return mValues.size();
     }
 
+    /**
+     * Auto-generated method, slightly modified by us.
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;

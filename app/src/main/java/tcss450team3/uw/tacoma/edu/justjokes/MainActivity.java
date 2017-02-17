@@ -32,11 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private EditText mUserUsernameEditText;
     private EditText mUserPasswordEditText;
 
-    private String USERNAME = "userName";
-    private String PASSWORD = "passWord";
-
-    private boolean loggedIn = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

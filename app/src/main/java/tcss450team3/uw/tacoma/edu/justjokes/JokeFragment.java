@@ -25,17 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
+ * A fragment that lists 20 jokes, displaying only their title.
+ *
+ * @author Vlad (2.15.17)
  */
 public class JokeFragment extends Fragment {
     private static final String COURSE_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?cmd=";
     private RecyclerView mRecyclerView;
-    private int numPages = 1;
-    private int currentPageNum = 1;
+    private int mNumPages = 1;
+    private int mCurrentPageNum = 1;
 
     private static final String ARG_COLUMN_COUNT = "column-count";
 
@@ -59,17 +58,32 @@ public class JokeFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * This is called when the Fragment is created, we use it to retrieve the amount of pages that
+     * contain jokes, which we use to enable/disable the page navigation buttons.
+     *
+     * @param savedInstanceState Stores data that was sent from the caller.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
         if (args != null) {
-            numPages = args.getInt("numPages");
+            mNumPages = args.getInt("numPages");
         }
 
     }
 
+    /**
+     * This method downloads the list of jokes, and also provides functionality for the
+     * 'Next'/'Prev' buttons.
+     *
+     * @param inflater A LayoutInflater object, that is used to get a View.
+     * @param container A ViewGroup object that is also used to get a View.
+     * @param savedInstanceState Stores data that was sent from the caller.
+     * @return Returns the View object that was generated.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,46 +99,54 @@ public class JokeFragment extends Fragment {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             DownloadCoursesTask task = new DownloadCoursesTask();
-            task.execute(new String[]{COURSE_URL + currentPageNum});
+            task.execute(new String[]{COURSE_URL + mCurrentPageNum});
         }
 
         final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
         final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
+        //Decrements the current page number variable and loads the jokes from that page.
+        // Enables/disables buttons accordingly.
         prevButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                currentPageNum--;
-                if (currentPageNum == 1) {
+                mCurrentPageNum--;
+                if (mCurrentPageNum == 1) {
                     prevButton.setEnabled(false);
                 }
                 nextButton.setEnabled(true);
-                new DownloadCoursesTask().execute(new String[]{COURSE_URL + currentPageNum});
+                new DownloadCoursesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
             }
         });
 
+        //Increments the current page number variable and loads the jokes from that page.
+        //Enables/disables buttons accordingly.
         nextButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                currentPageNum++;
-                if (currentPageNum == numPages)
+                mCurrentPageNum++;
+                if (mCurrentPageNum == mNumPages)
                     nextButton.setEnabled(false);
 
                 if (!prevButton.isEnabled())
                     prevButton.setEnabled(true);
 
-                new DownloadCoursesTask().execute(new String[]{COURSE_URL + currentPageNum});
+                new DownloadCoursesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
             }
         });
 
-        if (currentPageNum == 1)
+        if (mCurrentPageNum == 1)
             prevButton.setEnabled(false);
 
-        if (currentPageNum == numPages)
+        if (mCurrentPageNum == mNumPages)
             nextButton.setEnabled(false);
 
         return view;
     }
 
-
+    /**
+     * Auto-generated method, not modified by us.
+     *
+     * @param context A Context object.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -136,6 +158,9 @@ public class JokeFragment extends Fragment {
         }
     }
 
+    /**
+     * Auto-generated method, not modified by us.
+     */
     @Override
     public void onDetach() {
         super.onDetach();
@@ -151,12 +176,24 @@ public class JokeFragment extends Fragment {
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
+     *
+     * Auto-generated method, not modified by us.
      */
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(Joke item);
     }
 
+    /**
+     * This class is used to retrieve the current page of jokes, and list them in the fragment.
+     */
     private class DownloadCoursesTask extends AsyncTask<String, Void, String> {
+
+        /**
+         * Accesses the server, and retrieves the page's source.
+         *
+         * @param urls URLs to access.
+         * @return Returns the webpage's source.
+         */
         @Override
         protected String doInBackground(String... urls) {
             String response = "";
@@ -184,6 +221,12 @@ public class JokeFragment extends Fragment {
             }
             return response;
         }
+
+        /**
+         * Notifies the user of what happened via Toast, and updates the list if no issues occurred.
+         *
+         * @param result The server's response/webpage's source.
+         */
         @Override
         protected void onPostExecute(String result) {
             // Something wrong with the network or the URL.

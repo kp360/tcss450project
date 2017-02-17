@@ -20,18 +20,21 @@ import static android.R.attr.button;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CustomJokeDialogFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link CustomJokeDialogFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A Custom Dialog Fragment that is used to display a joke's setup and punchline, it allows the user
+ * show/hide the joke's punchline.
+ *
+ * @author Vlad (2.15.17)
  */
 public class CustomJokeDialogFragment extends DialogFragment {
     public final static String COURSE_ITEM_SELECTED = "course_selected";
 
+    /** A TextView variable that allows us to modify the setup TextView seen by the user. */
     private TextView mJokeSetupTextView;
+
+    /** A TextView variable that allows us to modify the punchline TextView seen by the user. */
     private TextView mJokePunchlineTextView;
+
+    /** The Button that hides/shows a joke's punchline. */
     private Button mShowButton;
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -51,6 +54,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
+     * Auto-generated method, not modified by us.
+     *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
      * @return A new instance of fragment CustomJokeDialogFragment.
@@ -64,6 +69,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
         return fragment;
     }
 
+    /**
+     * Auto-generated method, not modified by us.
+     *
+     * @param savedInstanceState Stores data that was sent from the caller.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +83,12 @@ public class CustomJokeDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * This method is used to setup how the dialog popup will look and behave.
+     *
+     * @param savedInstanceState Stores data that was sent from the caller.
+     * @return The Dialog to display.
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -91,6 +107,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
         // Pass null as the parent view because its going in the dialog layout
         builder.setView(view);
         mShowButton = (Button) view.findViewById(R.id.showButton);
+
+        //This inner method provides the functionality for the show/hide punchline button.
         mShowButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (mJokePunchlineTextView.getVisibility() == View.INVISIBLE) {
@@ -105,7 +123,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-
+    /**
+     * This method updates the proper text views to display the joke's setup and punchline.
+     *
+     * @param joke A Joke object to retrieve data from.
+     */
     public void updateView(Joke joke) {
         if (joke != null) {
             mJokeSetupTextView.setText(joke.getJokeSetup());

@@ -8,23 +8,39 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by Vlad on 2/15/17.
+ * Joke class to handle all the pieces of an individual joke.
+ *
+ * @author Vlad (2.15.17)
  */
-
 public class Joke implements Serializable {
     public static final String JOKE_ID = "jokeID", JOKE_TITLE = "jokeTitle"
             , JOKE_SETUP = "jokeSetup", JOKE_PUNCHLINE = "jokePunchline";
 
-    private int jokeID;
-    private String jokeTitle;
-    private String jokeSetup;
-    private String jokePunchline;
+    /** A Joke's unique ID number. */
+    private int mJokeID;
 
+    /** A Joke's title. (i.e. The Monkey Joke) */
+    private String mJokeTitle;
+
+    /** A Joke's setup/beginning. */
+    private String mJokeSetup;
+
+    /** A Joke's ending. */
+    private String mJokePunchline;
+
+    /**
+     * Constructor to initialize all the fields.
+     *
+     * @param jokeID The Joke's unique ID number.
+     * @param jokeTitle The Joke's title.
+     * @param jokeSetup The Joke's beginning.
+     * @param jokePunchline The Joke's conclusion.
+     */
     public Joke(int jokeID, String jokeTitle, String jokeSetup, String jokePunchline) {
-        this.jokeID = jokeID;
-        this.jokeTitle = jokeTitle;
-        this.jokeSetup = jokeSetup;
-        this.jokePunchline = jokePunchline;
+        this.mJokeID = jokeID;
+        this.mJokeTitle = jokeTitle;
+        this.mJokeSetup = jokeSetup;
+        this.mJokePunchline = jokePunchline;
     }
 
     /**
@@ -54,30 +70,30 @@ public class Joke implements Serializable {
     }
 
     public int getJokeID() {
-        return jokeID;
+        return mJokeID;
     }
 
     public String getJokeTitle() {
-        return jokeTitle;
+        return mJokeTitle;
     }
 
     public void setJokeTitle(String jokeTitle) {
-        this.jokeTitle = jokeTitle;
+        this.mJokeTitle = jokeTitle;
     }
 
     public String getJokeSetup() {
-        return jokeSetup;
+        return mJokeSetup;
     }
 
     public void setJokeSetup(String jokeSetup) {
-        this.jokeSetup = jokeSetup;
+        this.mJokeSetup = jokeSetup;
     }
 
     public String getJokePunchline() {
-        return jokePunchline;
+        return mJokePunchline;
     }
 
     public void setJokePunchline(String jokePunchline) {
-        this.jokePunchline = jokePunchline;
+        this.mJokePunchline = jokePunchline;
     }
 }
