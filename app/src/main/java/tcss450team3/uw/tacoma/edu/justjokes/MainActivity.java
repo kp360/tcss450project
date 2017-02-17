@@ -21,6 +21,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
+/**
+ *  The purpose of this activity is for the user to log in to an existing
+ *  account in our database, or to register and add a user to the database.
+ *
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOGIN_URL
@@ -49,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
         userLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = buildLoginURL(v);
+//                String url = buildLoginURL(v);
+                String url = buildURL(v, LOGIN_URL);
                 login(url);
             }
         });
@@ -58,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         userRegisButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = buildRegisURL(v);
+//                String url = buildRegisURL(v);
+                String url = buildURL(v, REGIS_URL);
                 register(url);
             }
         });
@@ -80,35 +87,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private String buildLoginURL(View v) {
+    private String buildURL(View v, String url) {
 
-        StringBuilder sb = new StringBuilder(LOGIN_URL);
-
-        try {
-
-            String userUsername = mUserUsernameEditText.getText().toString();
-            sb.append("userName=");
-            sb.append(userUsername);
-
-
-            String userPassword = mUserPasswordEditText.getText().toString();
-            sb.append("&passWord=");
-            sb.append(URLEncoder.encode(userPassword, "UTF-8"));
-
-
-            Log.i("userLogin", sb.toString());
-
-        }
-        catch(Exception e) {
-            Toast.makeText(v.getContext(), "Something wrong with the url" + e.getMessage(), Toast.LENGTH_LONG)
-                    .show();
-        }
-        return sb.toString();
-    }
-
-    private String buildRegisURL(View v) {
-
-        StringBuilder sb = new StringBuilder(REGIS_URL);
+        StringBuilder sb = new StringBuilder(url);
 
         try {
 
@@ -122,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             sb.append(URLEncoder.encode(userPassword, "UTF-8"));
 
 
-            Log.i("userRegistration", sb.toString());
+            Log.i("buildURL", sb.toString());
 
         }
         catch(Exception e) {
@@ -131,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return sb.toString();
     }
-
 
     private class DownloadUsersTask extends AsyncTask<String, Void, String> {
 
