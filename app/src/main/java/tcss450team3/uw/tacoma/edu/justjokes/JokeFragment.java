@@ -7,9 +7,11 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
@@ -30,9 +32,10 @@ import java.util.List;
  */
 public class JokeFragment extends Fragment {
     private static final String COURSE_URL
-            = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?cmd=1";
+            = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?cmd=";
     private RecyclerView mRecyclerView;
-
+    private int numPages = 1;
+    private int currentPageNum = 1;
 
     private static final String ARG_COLUMN_COUNT = "column-count";
 
@@ -60,9 +63,11 @@ public class JokeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+        Bundle args = getArguments();
+        if (args != null) {
+            numPages = args.getInt("numPages");
         }
+
     }
 
     @Override
@@ -80,8 +85,42 @@ public class JokeFragment extends Fragment {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             DownloadCoursesTask task = new DownloadCoursesTask();
-            task.execute(new String[]{COURSE_URL});
+            task.execute(new String[]{COURSE_URL + currentPageNum});
         }
+
+        final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
+        final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
+
+        prevButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                currentPageNum--;
+                if (currentPageNum == 1) {
+                    prevButton.setEnabled(false);
+                }
+                nextButton.setEnabled(true);
+                new DownloadCoursesTask().execute(new String[]{COURSE_URL + currentPageNum});
+            }
+        });
+
+        nextButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                currentPageNum++;
+                if (currentPageNum == numPages)
+                    nextButton.setEnabled(false);
+
+                if (!prevButton.isEnabled())
+                    prevButton.setEnabled(true);
+
+                new DownloadCoursesTask().execute(new String[]{COURSE_URL + currentPageNum});
+            }
+        });
+
+        if (currentPageNum == 1)
+            prevButton.setEnabled(false);
+
+        if (currentPageNum == numPages)
+            nextButton.setEnabled(false);
+
         return view;
     }
 

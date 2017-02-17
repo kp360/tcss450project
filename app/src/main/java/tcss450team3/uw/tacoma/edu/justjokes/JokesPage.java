@@ -25,8 +25,14 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jokes_page);
 
+
+
         if (savedInstanceState == null || getSupportFragmentManager().findFragmentById(R.id.list) == null) {
             JokeFragment courseFragment = new JokeFragment();
+            Bundle args = new Bundle();
+            int numPagesOfJokes = getIntent().getIntExtra("numPages", 0);
+            args.putInt("numPages", numPagesOfJokes);
+            courseFragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, courseFragment)
                     .commit();

@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
             = "http://cssgate.insttech.washington.edu/~_450bteam3/login.php?";
     private static final String REGIS_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/adduser.php?";
+    private static final int NUM_JOKES_PER_PAGE = 20;
 
     private EditText mUserUsernameEditText;
     private EditText mUserPasswordEditText;
@@ -171,7 +172,10 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "User logged in!"
                             , Toast.LENGTH_LONG)
                             .show();
+                    double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
+                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
                     Intent intent = new Intent(getApplicationContext(), JokesPage.class);
+                    intent.putExtra("numPages", numPagesOfJokes);
                     startActivity(intent);
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to login: "
