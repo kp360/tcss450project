@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
@@ -35,8 +36,14 @@ public class JokeFragment extends Fragment {
     private static final String COURSE_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?page=";
 
+    /** This text is used to convey to the user what page they're currently on. */
+    private static final String PAGE_TEXT = " Page: ";
+
     /** A RecylerView object that handles smooth list scrolling. */
     private RecyclerView mRecyclerView;
+
+    /** The TextView that tells the user what page of jokes they are currently browsing. */
+    private TextView mPageNumTextView;
 
     /** This variable holds the amount of pages of jokes our database currently has. It is used to
      * disable the next button, so the user doesn't encounter any pages without jokes. */
@@ -91,7 +98,6 @@ public class JokeFragment extends Fragment {
         if (args != null) {
             mNumPages = args.getInt("numPages");
         }
-
     }
 
     /**
@@ -117,7 +123,7 @@ public class JokeFragment extends Fragment {
             } else {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            DownloadCoursesTask task = new DownloadCoursesTask();
+            DownloadJokesTask task = new DownloadJokesTask();
             task.execute(new String[]{COURSE_URL + mCurrentPageNum});
         }
 
@@ -135,7 +141,8 @@ public class JokeFragment extends Fragment {
                 if (!nextButton.isEnabled())
                     nextButton.setEnabled(true);
 
-                new DownloadCoursesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                updatePageNumTextView();
             }
         });
 
@@ -150,7 +157,8 @@ public class JokeFragment extends Fragment {
                 if (!prevButton.isEnabled())
                     prevButton.setEnabled(true);
 
-                new DownloadCoursesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                updatePageNumTextView();
             }
         });
 
@@ -160,7 +168,36 @@ public class JokeFragment extends Fragment {
         if (mCurrentPageNum == mNumPages)
             nextButton.setEnabled(false);
 
+        mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
+        updatePageNumTextView();
+
         return view;
+    }
+
+    /**
+     * This method is used to update the TextView that shows the current page number.
+     */
+    private void updatePageNumTextView() {
+        mPageNumTextView.setText(PAGE_TEXT + mCurrentPageNum + " ");
+    }
+
+    /**
+     * Auto-generated method, not modified by us.
+     *
+     * This method is critical because it initializes mListener, which detects when the user
+     * interacts with our joke list.
+     *
+     * @param context A Context object.
+     */
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnListFragmentInteractionListener) {
+            mListener = (OnListFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
     }
 
     /**
@@ -182,7 +219,7 @@ public class JokeFragment extends Fragment {
     /**
      * This class is used to retrieve the current page of jokes, and list them in the fragment.
      */
-    private class DownloadCoursesTask extends AsyncTask<String, Void, String> {
+    private class DownloadJokesTask extends AsyncTask<String, Void, String> {
 
         /**
          * Accesses the server, and retrieves the page's data.

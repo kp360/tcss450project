@@ -20,25 +20,34 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TableRow>
-    <Button
-        android:id="@+id/prevButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Prev"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        />
+            <Button
+                android:id="@+id/prevButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:text="@string/previous"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                />
 
-    <Button
-        android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAllCaps="false"
-        android:text="Next"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        />
+            <TextView
+                android:id="@+id/pageNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                />
+
+            <Button
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:text="@string/next"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                />
         </TableRow>
     </TableLayout>
 </LinearLayout>
