@@ -18,7 +18,7 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     /**
      * This method handles opening a CustomJokeDialogFragment when a joke in the list is tapped on.
      *
-     * @param joke The Joke that whose values (setup, punchline) will be displayed in the
+     * @param joke The Joke whose values (setup, punchline) will be displayed in the
      *             CustomJokeDialogFragment.
      */
     @Override
@@ -33,7 +33,7 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
 
     /**
      * This method is called when the JokesPage Activity is created. It opens a JokeFragment object,
-     * and passes it the number of pages of jokes are currently in our database.
+     * and passes it the number of pages of jokes that are currently in our database.
      *
      * @param savedInstanceState Stores data that was sent from the caller.
      */

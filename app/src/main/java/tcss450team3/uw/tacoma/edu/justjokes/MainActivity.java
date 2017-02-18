@@ -29,13 +29,21 @@ import java.net.URLEncoder;
  */
 public class MainActivity extends AppCompatActivity {
 
+    /** The URL to the php file that handles user logins. */
     private static final String LOGIN_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/login.php?";
+
+    /** The URL to the php file that handles user registration. */
     private static final String REGIS_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/adduser.php?";
+
+    /** The amount of jokes that are displayed on each page. */
     private static final int NUM_JOKES_PER_PAGE = 20;
 
+    /** The EditText where users type their username. */
     private EditText mUserUsernameEditText;
+
+    /** The EditText where users type their password. */
     private EditText mUserPasswordEditText;
 
     /**
@@ -58,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         userLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String url = buildLoginURL(v);
                 String url = buildURL(v, LOGIN_URL);
                 login(url);
             }
@@ -68,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         userRegisButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String url = buildRegisURL(v);
                 String url = buildURL(v, REGIS_URL);
                 register(url);
             }
@@ -84,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
      * @param url a String containing a url query for our database
      */
     public void login(String url) {
-
         DownloadUsersTask task = new DownloadUsersTask();
         task.execute(new String[]{url.toString()});
     }

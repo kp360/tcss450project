@@ -41,9 +41,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    private String mParam1;
-    private String mParam2;
-
+    /** Auto-generated variable, used to detect user interaction. */
     private OnFragmentInteractionListener mListener;
 
     public CustomJokeDialogFragment() {
@@ -77,10 +75,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     /**
@@ -135,12 +129,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -150,6 +138,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
+     *
+     * Auto-generated method, not modified by us.
      */
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);

@@ -30,15 +30,29 @@ import java.util.List;
  * @author Vlad (2.15.17)
  */
 public class JokeFragment extends Fragment {
+
+    /** The URL to the php file that handles joke retrieval. */
     private static final String COURSE_URL
-            = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?cmd=";
+            = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?page=";
+
+    /** A RecylerView object that handles smooth list scrolling. */
     private RecyclerView mRecyclerView;
+
+    /** This variable holds the amount of pages of jokes our database currently has. It is used to
+     * disable the next button, so the user doesn't encounter any pages without jokes. */
     private int mNumPages = 1;
+
+    /** This variable holds the current page that the user is viewing, it is used to ensure that the
+     * previous (prev) and next buttons are enabled/disabled at the proper times. */
     private int mCurrentPageNum = 1;
 
+    /** Auto-generated variable. */
     private static final String ARG_COLUMN_COUNT = "column-count";
 
+    /** Auto-generated variable. */
     private int mColumnCount = 1;
+
+    /** Auto-generated variable, used to detect user interaction. */
     private OnListFragmentInteractionListener mListener;
 
     /**
@@ -48,7 +62,12 @@ public class JokeFragment extends Fragment {
     public JokeFragment() {
     }
 
-
+    /**
+     * Auto-generated constructor, not modified by us.
+     *
+     * @param columnCount Auto-generated variable.
+     * @return Returns a JokeFragment object.
+     */
     @SuppressWarnings("unused")
     public static JokeFragment newInstance(int columnCount) {
         JokeFragment fragment = new JokeFragment();
@@ -76,7 +95,7 @@ public class JokeFragment extends Fragment {
     }
 
     /**
-     * This method downloads the list of jokes, and also provides functionality for the
+     * This method downloads the page of jokes, and also provides functionality for the
      * 'Next'/'Prev' buttons.
      *
      * @param inflater A LayoutInflater object, that is used to get a View.
@@ -106,14 +125,16 @@ public class JokeFragment extends Fragment {
         final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
         //Decrements the current page number variable and loads the jokes from that page.
-        // Enables/disables buttons accordingly.
+        //Enables/disables buttons accordingly.
         prevButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
                 mCurrentPageNum--;
-                if (mCurrentPageNum == 1) {
+                if (mCurrentPageNum == 1)
                     prevButton.setEnabled(false);
-                }
-                nextButton.setEnabled(true);
+
+                if (!nextButton.isEnabled())
+                    nextButton.setEnabled(true);
+
                 new DownloadCoursesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
             }
         });
@@ -143,31 +164,6 @@ public class JokeFragment extends Fragment {
     }
 
     /**
-     * Auto-generated method, not modified by us.
-     *
-     * @param context A Context object.
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-    }
-
-    /**
-     * Auto-generated method, not modified by us.
-     */
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -189,7 +185,7 @@ public class JokeFragment extends Fragment {
     private class DownloadCoursesTask extends AsyncTask<String, Void, String> {
 
         /**
-         * Accesses the server, and retrieves the page's source.
+         * Accesses the server, and retrieves the page's data.
          *
          * @param urls URLs to access.
          * @return Returns the webpage's source.
@@ -225,7 +221,7 @@ public class JokeFragment extends Fragment {
         /**
          * Notifies the user of what happened via Toast, and updates the list if no issues occurred.
          *
-         * @param result The server's response/webpage's source.
+         * @param result An error message, or the server's response/webpage's data.
          */
         @Override
         protected void onPostExecute(String result) {
