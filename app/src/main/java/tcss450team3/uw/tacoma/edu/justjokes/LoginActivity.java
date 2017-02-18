@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,13 +26,13 @@ import java.net.URLEncoder;
  *
  *  @author Kyle Phan 2/16/17
  */
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
-    /** The URL to the php file that handles user logins. */
+    /** The URL of the php file that handles user logins. */
     private static final String LOGIN_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/login.php?";
 
-    /** The URL to the php file that handles user registration. */
+    /** The URL of the php file that handles user registration. */
     private static final String REGIS_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/adduser.php?";
 
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         mUserUsernameEditText = (EditText) findViewById(R.id.usernameEditText);
         mUserPasswordEditText = (EditText) findViewById(R.id.passwordEditText);

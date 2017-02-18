@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class JokeFragment extends Fragment {
 
-    /** The URL to the php file that handles joke retrieval. */
+    /** The URL of the php file that handles joke retrieval. */
     private static final String COURSE_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?page=";
 
