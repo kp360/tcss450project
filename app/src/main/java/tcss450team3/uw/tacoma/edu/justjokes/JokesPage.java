@@ -3,6 +3,8 @@ package tcss450team3.uw.tacoma.edu.justjokes;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -53,4 +55,53 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
                     .commit();
         }
     }
+
+    /**
+     * This method creates the settings menu.
+     *
+     * @param menu Our settings/logout menu
+     * @return boolean when menu is created
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return true;
+    }
+
+    /**
+     * This method handles whatever button was clicked in the menu by launching a certain action.
+     *
+     * @param item the button that was pressed inside the menu i.e.(logout, preferences)
+     * @return boolean after action was performed
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.settings_logout) {
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * This method overrides the bac k button, that way you can't use the back button
+     * to close out of the app. (I think) Pressing the back button pops the joke list off the stack
+     * so when you reopen the app you have to log in again.
+     *
+     */
+    @Override
+    public void onBackPressed() {
+        // Do Here what ever you want do on back press;
+    }
+
 }
