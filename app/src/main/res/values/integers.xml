@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="joke_title_max">50</integer>
+    <integer name="joke_setup_max">100</integer>
+    <integer name="joke_punchline_max">100</integer>
+</resources>
