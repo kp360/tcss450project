@@ -3,9 +3,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center">
-    <FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/appbar_padding_top"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/yoTabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.design.widget.TabLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <!--<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
@@ -13,12 +30,21 @@
         android:layout_weight="2"
         tools:context="tcss450team3.uw.tacoma.edu.justjokes.JokesPage">
 
-    </FrameLayout >
+    </FrameLayout >-->
+
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
     <TableLayout
+        android:id="@+id/navigationTable"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
         <TableRow>
             <Button
                 android:id="@+id/prevButton"
@@ -37,6 +63,7 @@
                 android:textAllCaps="false"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
+                android:text=" Page: _ "
                 />
 
             <Button

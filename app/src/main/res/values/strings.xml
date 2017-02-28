@@ -8,4 +8,6 @@
     <string name="showPunchline">Show Punchline</string>
     <string name="previous">Prev</string>
     <string name="next">Next</string>
+    <string name="title_activity_user_dashboard">UserDashboard</string>
+    <string name="action_settings">Settings</string>
 </resources>

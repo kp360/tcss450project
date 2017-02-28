@@ -42,7 +42,7 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_joke, parent, false);
+                    .inflate(R.layout.fragment_joke, parent, false);
         return new ViewHolder(view);
     }
 
