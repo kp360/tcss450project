@@ -53,6 +53,8 @@ public class JokeFragment extends Fragment {
      * previous (prev) and next buttons are enabled/disabled at the proper times. */
     private int mCurrentPageNum = 1;
 
+    private String mPurpose;
+
     /** Auto-generated variable. */
     private static final String ARG_COLUMN_COUNT = "column-count";
 
@@ -97,6 +99,7 @@ public class JokeFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             mNumPages = args.getInt("numPages");
+            mPurpose = args.getString("purpose");
         }
     }
 
@@ -127,49 +130,51 @@ public class JokeFragment extends Fragment {
             task.execute(new String[]{COURSE_URL + mCurrentPageNum});
         }
 
-        final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
-        final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
+        if (mPurpose.equals("jokeViewer")) {
+            final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
+            final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
-        //Decrements the current page number variable and loads the jokes from that page.
-        //Enables/disables buttons accordingly.
-        prevButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                mCurrentPageNum--;
-                if (mCurrentPageNum == 1)
-                    prevButton.setEnabled(false);
+            //Decrements the current page number variable and loads the jokes from that page.
+            //Enables/disables buttons accordingly.
+            prevButton.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+                    mCurrentPageNum--;
+                    if (mCurrentPageNum == 1)
+                        prevButton.setEnabled(false);
 
-                if (!nextButton.isEnabled())
-                    nextButton.setEnabled(true);
+                    if (!nextButton.isEnabled())
+                        nextButton.setEnabled(true);
 
-                new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
-                updatePageNumTextView();
-            }
-        });
+                    new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                    updatePageNumTextView();
+                }
+            });
 
-        //Increments the current page number variable and loads the jokes from that page.
-        //Enables/disables buttons accordingly.
-        nextButton.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
-                mCurrentPageNum++;
-                if (mCurrentPageNum == mNumPages)
-                    nextButton.setEnabled(false);
+            //Increments the current page number variable and loads the jokes from that page.
+            //Enables/disables buttons accordingly.
+            nextButton.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+                    mCurrentPageNum++;
+                    if (mCurrentPageNum == mNumPages)
+                        nextButton.setEnabled(false);
 
-                if (!prevButton.isEnabled())
-                    prevButton.setEnabled(true);
+                    if (!prevButton.isEnabled())
+                        prevButton.setEnabled(true);
 
-                new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
-                updatePageNumTextView();
-            }
-        });
+                    new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                    updatePageNumTextView();
+                }
+            });
 
-        if (mCurrentPageNum == 1)
-            prevButton.setEnabled(false);
+            if (mCurrentPageNum == 1)
+                prevButton.setEnabled(false);
 
-        if (mCurrentPageNum == mNumPages)
-            nextButton.setEnabled(false);
+            if (mCurrentPageNum == mNumPages)
+                nextButton.setEnabled(false);
 
-        mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
-        updatePageNumTextView();
+            mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
+            updatePageNumTextView();
+        }
 
         return view;
     }

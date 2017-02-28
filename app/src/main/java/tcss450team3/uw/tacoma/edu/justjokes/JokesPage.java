@@ -76,8 +76,24 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         Bundle args = new Bundle();
         int numPagesOfJokes = getIntent().getIntExtra("numPages", 0);
         args.putInt("numPages", numPagesOfJokes);
+        args.putString("purpose", "jokeViewer");
         jokeFragment.setArguments(args);
         pages.add(jokeFragment);
+
+        JokeFragment highScoresFragment = new JokeFragment();
+        args = new Bundle();
+        args.putString("purpose", "highScores");
+        highScoresFragment.setArguments(args);
+        pages.add(highScoresFragment);
+
+        JokeFragment favoritesFragment = new JokeFragment();
+        args = new Bundle();
+        args.putString("purpose", "favorites");
+        favoritesFragment.setArguments(args);
+        pages.add(favoritesFragment);
+
+        SubmitJokeFragment submitJoke = new SubmitJokeFragment();
+        pages.add(submitJoke);
 
         mDemoCollectionPagerAdapter =
                 new DemoCollectionPagerAdapter(getSupportFragmentManager(), pages);
@@ -91,8 +107,6 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
 
             @Override
             public void onPageSelected(int position) {
-                Log.e("tag", "GETINT: " + position);
-
                 TableLayout navigation = (TableLayout) findViewById(R.id.navigationTable);
                 if (position == 0) {
                     navigation.setVisibility(View.VISIBLE);
