@@ -209,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), JokesPage.class);
                     intent.putExtra("numPages", numPagesOfJokes);
                     startActivity(intent);
+                    finish();
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to login: "
                                     + jsonObject.get("error")
