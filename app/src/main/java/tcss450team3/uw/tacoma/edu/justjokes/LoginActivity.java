@@ -1,8 +1,6 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,8 +27,6 @@ import java.net.URLEncoder;
  *  @author Kyle Phan 2/16/17
  */
 public class LoginActivity extends AppCompatActivity {
-
-    private SharedPreferences mSharedPreferences;
 
     /** The URL of the php file that handles user logins. */
     private static final String LOGIN_URL
@@ -64,14 +60,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mUserUsernameEditText = (EditText) findViewById(R.id.usernameEditText);
         mUserPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
-
-        mSharedPreferences = getSharedPreferences(getString(R.string.LOGIN_PREFS)
-                , Context.MODE_PRIVATE);
-        if (mSharedPreferences.getBoolean(getString(R.string.LOGGEDIN), true)) {
-            Intent intent = new Intent(getApplicationContext(), JokesPage.class);
-            startActivity(intent);
-            finish();
-        }
 
         Button userLoginButton = (Button) findViewById(R.id.loginButton);
         userLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -218,17 +206,9 @@ public class LoginActivity extends AppCompatActivity {
                     double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
                     int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
 
-
                     Intent intent = new Intent(getApplicationContext(), JokesPage.class);
                     intent.putExtra("numPages", numPagesOfJokes);
                     startActivity(intent);
-
-                    mSharedPreferences
-                            .edit()
-                            .putBoolean(getString(R.string.LOGGEDIN), true)
-                            .commit();
-
-
                     finish();
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to login: "

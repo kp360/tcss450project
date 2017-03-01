@@ -11,7 +11,7 @@
     <string name="logout">Logout</string>
     <string name="remember_me">Remember Me</string>
     <string name="joke_submission">Joke Submission</string>
-    <string name="sub_joke_title">Enter the Joke Title</string>
+    <string name="sub_joke_title">Enter a Joke Title (e.g. Karate Joke, Tire Joke)</string>
     <string name="sub_joke_setup">Enter the Joke Setup</string>
     <string name="sub_joke_punchline">Enter the Joke Punchline</string>
     <string name="sub_joke_button">Submit Joke</string>

@@ -4,15 +4,21 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import java.net.URLEncoder;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link SubmitJokeFragment.OnFragmentInteractionListener} interface
+ * {@link SubmitJokeFragment.SubmitJokeListener} interface
  * to handle interaction events.
  * Use the {@link SubmitJokeFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -27,7 +33,14 @@ public class SubmitJokeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private static final String JOKE_SUB_URL
+            = "http://cssgate.insttech.washington.edu/~_450bteam3/addJoke.php?";
+
+    private EditText mJokeTitleEdit;
+    private EditText mJokeSetupEdit;
+    private EditText mJokePunchlineEdit;
+
+    private SubmitJokeListener mListener;
 
     public SubmitJokeFragment() {
         // Required empty public constructor
@@ -63,27 +76,41 @@ public class SubmitJokeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_submit_joke, container, false);
+        View v = inflater.inflate(R.layout.fragment_submit_joke, container, false);
+
+        mJokeTitleEdit = (EditText) v.findViewById(R.id.sub_joke_title_field);
+        mJokeSetupEdit = (EditText) v.findViewById(R.id.sub_joke_setup_field);
+        mJokePunchlineEdit = (EditText) v.findViewById(R.id.sub_joke_punchline_field);
+
+        Button addCourseButton = (Button) v.findViewById(R.id.sub_joke_button);
+        addCourseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = buildJokeURL(v);
+                mListener.submitJoke(url);
+            }
+        });
+
+        return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+//    // TODO: Rename method, update argument and hook method into UI event
+//    public void onButtonPressed(Uri uri) {
+//        if (mListener != null) {
+//            mListener.onFragmentInteraction(uri);
+//        }
+//    }
 
-    /*@Override
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof SubmitJokeListener) {
+            mListener = (SubmitJokeListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-    }*/
+    }
 
     @Override
     public void onDetach() {
@@ -101,8 +128,38 @@ public class SubmitJokeFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface SubmitJokeListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        public void submitJoke(String url);
+    }
+
+    private String buildJokeURL(View v) {
+
+        StringBuilder sb = new StringBuilder(JOKE_SUB_URL);
+
+        try {
+
+            String courseId = mJokeTitleEdit.getText().toString();
+            sb.append("jokeTitle=");
+            sb.append(courseId);
+
+
+            String courseShortDesc = mJokeSetupEdit.getText().toString();
+            sb.append("&jokeSetup=");
+            sb.append(URLEncoder.encode(courseShortDesc, "UTF-8"));
+
+
+            String courseLongDesc = mJokePunchlineEdit.getText().toString();
+            sb.append("&jokePunchline=");
+            sb.append(URLEncoder.encode(courseLongDesc, "UTF-8"));
+
+            Log.i("SubmitJokeFragment", sb.toString());
+
+        }
+        catch(Exception e) {
+            Toast.makeText(v.getContext(), "Something wrong with the url" + e.getMessage(), Toast.LENGTH_LONG)
+                    .show();
+        }
+        return sb.toString();
     }
 }

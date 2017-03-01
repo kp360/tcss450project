@@ -1,6 +1,7 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,9 +27,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
@@ -38,7 +48,7 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
  * @author Vlad (2.16.17)
  */
 
-public class JokesPage extends AppCompatActivity implements JokeFragment.OnListFragmentInteractionListener  {
+public class JokesPage extends AppCompatActivity implements JokeFragment.OnListFragmentInteractionListener, SubmitJokeFragment.SubmitJokeListener {
 
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     ViewPager mViewPager;
@@ -184,6 +194,13 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         // Do Here what ever you want do on back press;
     }
 
+    @Override
+    public void submitJoke(String url) {
+        System.out.println("submit joke is being called");
+        SubmitJokeTask task = new SubmitJokeTask();
+        task.execute(new String[]{url.toString()});
+    }
+
     private class DemoCollectionPagerAdapter extends FragmentPagerAdapter {
         private List<Fragment> myFragments;
 
@@ -218,4 +235,74 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         }
     }
 
+    private class SubmitJokeTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            String response = "";
+            HttpURLConnection urlConnection = null;
+            for (String url : urls) {
+                try {
+                    System.out.println("SubmitJokeTask trying");
+                    URL urlObject = new URL(url);
+                    urlConnection = (HttpURLConnection) urlObject.openConnection();
+
+                    InputStream content = urlConnection.getInputStream();
+
+                    BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                    String s = "";
+                    while ((s = buffer.readLine()) != null) {
+                        response += s;
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("SubmitJokeTask failed");
+                    response = "Unable to submit joke, Reason: "
+                            + e.getMessage();
+                } finally {
+                    if (urlConnection != null)
+                        urlConnection.disconnect();
+                }
+            }
+            return response;
+        }
+
+
+        /**
+         * It checks to see if there was a problem with the URL(Network) which is when an
+         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
+         * If not, it displays the exception.
+         *
+         * @param result
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            // Something wrong with the network or the URL.
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+                String status = (String) jsonObject.get("result");
+                if (status.equals("success")) {
+                    EditText jokeTitle = (EditText)findViewById(R.id.sub_joke_title_field);
+                    EditText jokeSetup = (EditText)findViewById(R.id.sub_joke_setup_field);
+                    EditText jokePunchline = (EditText)findViewById(R.id.sub_joke_punchline_field);
+
+                    jokeTitle.setText("");
+                    jokeSetup.setText("");
+                    jokePunchline.setText("");
+
+                    Toast.makeText(getApplicationContext(), "Joke successfully added!"
+                            , Toast.LENGTH_LONG)
+                            .show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Failed to add: "
+                                    + jsonObject.get("error")
+                            , Toast.LENGTH_LONG)
+                            .show();
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), "Something wrong with the data" +
+                        e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 }
