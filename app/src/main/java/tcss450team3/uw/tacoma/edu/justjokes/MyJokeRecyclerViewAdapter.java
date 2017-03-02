@@ -20,6 +20,7 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
 
     private final List<Joke> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private boolean mNumbered;
 
     /**
      * Auto-generated method, not modified by us.
@@ -27,9 +28,10 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
      * @param items Items to display in the list.
      * @param listener An OnListFragmentInteractionListener object.
      */
-    public MyJokeRecyclerViewAdapter(List<Joke> items, OnListFragmentInteractionListener listener) {
+    public MyJokeRecyclerViewAdapter(List<Joke> items, OnListFragmentInteractionListener listener, boolean numbered) {
         mValues = items;
         mListener = listener;
+        mNumbered = numbered;
     }
 
     /**
@@ -55,7 +57,10 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).getJokeTitle());
+        if (mNumbered)
+            holder.mIdView.setText((position + 1) + ". " + mValues.get(position).getJokeTitle());
+        else
+            holder.mIdView.setText(mValues.get(position).getJokeTitle());
         //holder.mContentView.setText(mValues.get(position).getJokeTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

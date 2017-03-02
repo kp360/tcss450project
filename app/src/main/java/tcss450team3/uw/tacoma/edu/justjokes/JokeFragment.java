@@ -24,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A fragment that lists 20 jokes, displaying only their title.
@@ -33,8 +34,13 @@ import java.util.List;
 public class JokeFragment extends Fragment {
 
     /** The URL of the php file that handles joke retrieval. */
-    private static final String COURSE_URL
-            = "http://cssgate.insttech.washington.edu/~_450bteam3/list.php?page=";
+    private static final String BASE_URL
+            = "http://cssgate.insttech.washington.edu/~_450bteam3/";
+
+    private static final String JOKES_URL = "list.php?page=";
+
+    private static final String HIGH_SCORES_URL
+            = "getHighScores.php";
 
     /** This text is used to convey to the user what page they're currently on. */
     private static final String PAGE_TEXT = " Page: ";
@@ -51,9 +57,15 @@ public class JokeFragment extends Fragment {
 
     /** This variable holds the current page that the user is viewing, it is used to ensure that the
      * previous (prev) and next buttons are enabled/disabled at the proper times. */
-    private int mCurrentPageNum = 1;
+    private int mCurrentPageNum;
 
     private String mPurpose;
+
+    private List<Joke> mFavorites;
+
+    private Set<Integer> mUpvoted;
+
+    private Set<Integer> mDownvoted;
 
     /** Auto-generated variable. */
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -95,11 +107,13 @@ public class JokeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mCurrentPageNum = 1;
+        Log.e("tag", "oncreate");
         Bundle args = getArguments();
         if (args != null) {
             mNumPages = args.getInt("numPages");
             mPurpose = args.getString("purpose");
+            mFavorites = (List) args.getSerializable("favoritesList");
         }
     }
 
@@ -126,11 +140,13 @@ public class JokeFragment extends Fragment {
             } else {
                 mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            DownloadJokesTask task = new DownloadJokesTask();
-            task.execute(new String[]{COURSE_URL + mCurrentPageNum});
         }
 
         if (mPurpose.equals("jokeViewer")) {
+            DownloadJokesTask task = new DownloadJokesTask();
+
+            task.execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
+
             final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
             final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
@@ -145,7 +161,7 @@ public class JokeFragment extends Fragment {
                     if (!nextButton.isEnabled())
                         nextButton.setEnabled(true);
 
-                    new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                    new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
                     updatePageNumTextView();
                 }
             });
@@ -161,7 +177,7 @@ public class JokeFragment extends Fragment {
                     if (!prevButton.isEnabled())
                         prevButton.setEnabled(true);
 
-                    new DownloadJokesTask().execute(new String[]{COURSE_URL + mCurrentPageNum});
+                    new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
                     updatePageNumTextView();
                 }
             });
@@ -174,6 +190,10 @@ public class JokeFragment extends Fragment {
 
             mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
             updatePageNumTextView();
+        } else if (mPurpose.equals("highScores")) {
+            new DownloadJokesTask().execute(new String[]{BASE_URL + HIGH_SCORES_URL});
+        } else { //purpose = favorites
+            mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(mFavorites, mListener, false));
         }
 
         return view;
@@ -294,7 +314,10 @@ public class JokeFragment extends Fragment {
 
             // Everything is good, show the list of courses.
             if (!courseList.isEmpty()) {
-                mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener));
+                if (mPurpose.equals("highScores"))
+                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, true));
+                else
+                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, false));
             }
         }
 

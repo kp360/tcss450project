@@ -30,10 +30,15 @@ import android.view.ViewGroup;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -52,6 +57,10 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
 
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     ViewPager mViewPager;
+
+    List<Joke> mFavoriteJokes;
+    Set<Integer> mUpvoted;
+    Set<Integer> mDownvoted;
 
     /**
      * This method handles opening a CustomJokeDialogFragment when a joke in the list is tapped on.
@@ -80,6 +89,28 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jokes_page);
 
+        mUpvoted = new HashSet<Integer>();
+        String upvotesStringVersion = (getIntent().getStringExtra("upvotes"));
+        if (!upvotesStringVersion.equals("")) {
+            String[] upvoted = upvotesStringVersion.split(",");
+            for (int i = 0; i < upvoted.length; i++) {
+                mUpvoted.add(Integer.parseInt(upvoted[i]));
+            }
+        }
+
+        mDownvoted = new HashSet<Integer>();
+        String downvotesStringVersion = (getIntent().getStringExtra("downvotes"));
+        if (!downvotesStringVersion.equals("")) {
+            String[] downvoted = downvotesStringVersion.split(",");
+            mDownvoted = new HashSet<Integer>();
+            for (int i = 0; i < downvoted.length; i++) {
+                mDownvoted.add(Integer.parseInt(downvoted[i]));
+            }
+        }
+
+        mFavoriteJokes = new ArrayList<Joke>();
+        Joke.parseCourseJSON(getIntent().getStringExtra("favorites"), mFavoriteJokes);
+
         List<Fragment> pages = new ArrayList<>();
 
         JokeFragment jokeFragment = new JokeFragment();
@@ -99,6 +130,7 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         JokeFragment favoritesFragment = new JokeFragment();
         args = new Bundle();
         args.putString("purpose", "favorites");
+        args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
         favoritesFragment.setArguments(args);
         pages.add(favoritesFragment);
 
@@ -133,17 +165,6 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.yoTabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-//        if (savedInstanceState == null || getSupportFragmentManager().findFragmentById(R.id.list) == null) {
-//            JokeFragment courseFragment = new JokeFragment();
-//            Bundle args = new Bundle();
-//            int numPagesOfJokes = getIntent().getIntExtra("numPages", 0);
-//            args.putInt("numPages", numPagesOfJokes);
-//            courseFragment.setArguments(args);
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.fragment_container, courseFragment)
-//                    .commit();
-//        }
     }
 
     /**

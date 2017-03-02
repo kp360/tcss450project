@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +25,7 @@ import java.net.URLEncoder;
  *  The purpose of this activity is for the user to log in to an existing
  *  account in our database, or to register and add a user to the database.
  *
- *  @author Kyle Phan 2/16/17
+ *  @author Kyle Phan 3/1/17
  */
 public class LoginActivity extends AppCompatActivity {
 
@@ -206,8 +207,15 @@ public class LoginActivity extends AppCompatActivity {
                     double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
                     int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
 
+                    JSONArray favoriteJokes = (JSONArray) jsonObject.get("favorites");
+                    String upvoted = (String)jsonObject.get("upvotes");
+                    String downvoted = (String)jsonObject.get("downvotes");
+
                     Intent intent = new Intent(getApplicationContext(), JokesPage.class);
                     intent.putExtra("numPages", numPagesOfJokes);
+                    intent.putExtra("favorites", favoriteJokes.toString());
+                    intent.putExtra("upvotes", upvoted);
+                    intent.putExtra("downvotes", downvoted);
                     startActivity(intent);
                     finish();
                 } else {
