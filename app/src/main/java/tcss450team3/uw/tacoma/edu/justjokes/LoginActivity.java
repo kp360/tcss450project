@@ -24,7 +24,7 @@ import java.net.URLEncoder;
  *  The purpose of this activity is for the user to log in to an existing
  *  account in our database, or to register and add a user to the database.
  *
- *  @author Kyle Phan 2/16/17
+ *  @author Kyle Phan 3/1/17
  */
 public class LoginActivity extends AppCompatActivity {
 
