@@ -22,6 +22,11 @@ import java.net.URLEncoder;
  * to handle interaction events.
  * Use the {@link SubmitJokeFragment#newInstance} factory method to
  * create an instance of this fragment.
+ *
+ * @author Vlad
+ * @author Kyle
+ *
+ * 3/1/17
  */
 public class SubmitJokeFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
