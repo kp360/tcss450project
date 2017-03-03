@@ -58,9 +58,10 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     ViewPager mViewPager;
 
-    List<Joke> mFavoriteJokes;
-    Set<Integer> mUpvoted;
-    Set<Integer> mDownvoted;
+    private List<Joke> mFavoriteJokes;
+    private Set<Integer> mUpvoted;
+    private Set<Integer> mDownvoted;
+    private String mUsername;
 
     /**
      * This method handles opening a CustomJokeDialogFragment when a joke in the list is tapped on.
@@ -72,9 +73,13 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     public void onListFragmentInteraction(Joke joke) {
         CustomJokeDialogFragment jokeDetailFragment = new CustomJokeDialogFragment();
         Bundle args = new Bundle();
+        args.putSerializable("favorites", (Serializable) mFavoriteJokes);
+        args.putSerializable("upvotes", (Serializable) mUpvoted);
+        args.putSerializable("downvotes", (Serializable) mDownvoted);
+        args.putString("username", mUsername);
         args.putSerializable(jokeDetailFragment.COURSE_ITEM_SELECTED, joke);
         jokeDetailFragment.setArguments(args);
-
+Log.e("tag",  "luanchign.");
         jokeDetailFragment.show(getSupportFragmentManager(), "launch");
     }
 
@@ -110,6 +115,8 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
 
         mFavoriteJokes = new ArrayList<Joke>();
         Joke.parseCourseJSON(getIntent().getStringExtra("favorites"), mFavoriteJokes);
+
+        mUsername = getIntent().getStringExtra("username");
 
         List<Fragment> pages = new ArrayList<>();
 
@@ -264,7 +271,6 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
             HttpURLConnection urlConnection = null;
             for (String url : urls) {
                 try {
-                    System.out.println("SubmitJokeTask trying");
                     URL urlObject = new URL(url);
                     urlConnection = (HttpURLConnection) urlObject.openConnection();
 

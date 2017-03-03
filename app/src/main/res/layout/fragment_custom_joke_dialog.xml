@@ -4,7 +4,6 @@
     android:layout_height="wrap_content"
     tools:context="tcss450team3.uw.tacoma.edu.justjokes.CustomJokeDialogFragment"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -35,10 +34,63 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"
-        android:paddingBottom="10dp"
+        android:paddingBottom="16dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:layout_gravity="center"
         android:gravity="center"/>
+
+    <View
+        android:paddingBottom="16dp"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimaryDark"/>
+
+    <LinearLayout
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:context="tcss450team3.uw.tacoma.edu.justjokes.CustomJokeDialogFragment"
+        android:orientation="horizontal"
+        android:gravity="bottom">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center_vertical">
+            <ImageView
+                android:id="@+id/upvoteButton"
+                android:src="@drawable/neutralup"
+                android:layout_height="30dp"
+                android:layout_width="26dp"
+                />
+
+            <ImageView
+                android:layout_marginLeft="5dp"
+                android:id="@+id/downvoteButton"
+                android:src="@drawable/neutraldown"
+                android:layout_height="30dp"
+                android:layout_width="26dp"
+                />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="right"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="10dp">
+                <ImageView
+                    android:id="@+id/favoriteButton"
+                    android:layout_width="55dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/favoritebutton">
+                </ImageView>
+            </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

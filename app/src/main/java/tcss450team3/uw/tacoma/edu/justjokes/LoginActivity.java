@@ -200,7 +200,8 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(result);
                 String status = (String) jsonObject.get("result");
                 if (status.equals("success")) {
-                    Toast.makeText(getApplicationContext(), "User logged in!"
+                    String username = mUserUsernameEditText.getText().toString();
+                    Toast.makeText(getApplicationContext(), "Welcome back, " + username + "!"
                             , Toast.LENGTH_LONG)
                             .show();
 
@@ -216,6 +217,7 @@ public class LoginActivity extends AppCompatActivity {
                     intent.putExtra("favorites", favoriteJokes.toString());
                     intent.putExtra("upvotes", upvoted);
                     intent.putExtra("downvotes", downvoted);
+                    intent.putExtra("username", username);
                     startActivity(intent);
                     finish();
                 } else {
