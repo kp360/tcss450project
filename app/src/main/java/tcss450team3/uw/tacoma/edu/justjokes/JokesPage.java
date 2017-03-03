@@ -125,12 +125,18 @@ Log.e("tag",  "luanchign.");
         int numPagesOfJokes = getIntent().getIntExtra("numPages", 0);
         args.putInt("numPages", numPagesOfJokes);
         args.putString("purpose", "jokeViewer");
+        args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
+        args.putSerializable("upvotes", (Serializable) mUpvoted);
+        args.putSerializable("downvotes", (Serializable) mDownvoted);
         jokeFragment.setArguments(args);
         pages.add(jokeFragment);
 
         JokeFragment highScoresFragment = new JokeFragment();
         args = new Bundle();
         args.putString("purpose", "highScores");
+        args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
+        args.putSerializable("upvotes", (Serializable) mUpvoted);
+        args.putSerializable("downvotes", (Serializable) mDownvoted);
         highScoresFragment.setArguments(args);
         pages.add(highScoresFragment);
 
@@ -138,6 +144,8 @@ Log.e("tag",  "luanchign.");
         args = new Bundle();
         args.putString("purpose", "favorites");
         args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
+        args.putSerializable("upvotes", (Serializable) mUpvoted);
+        args.putSerializable("downvotes", (Serializable) mDownvoted);
         favoritesFragment.setArguments(args);
         pages.add(favoritesFragment);
 
@@ -185,6 +193,11 @@ Log.e("tag",  "luanchign.");
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.settings_menu, menu);
         return true;
+    }
+
+    public void refreshPage() {
+        JokeFragment currentFragment = (JokeFragment) mDemoCollectionPagerAdapter.getItem(mViewPager.getCurrentItem());
+        currentFragment.updateRecyclerView();
     }
 
     /**

@@ -20,6 +20,7 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -114,7 +115,14 @@ public class JokeFragment extends Fragment {
             mNumPages = args.getInt("numPages");
             mPurpose = args.getString("purpose");
             mFavorites = (List) args.getSerializable("favoritesList");
+            mUpvoted = (Set<Integer>) args.getSerializable("upvotes");
+            mDownvoted = (Set<Integer>) args.getSerializable("downvotes");
         }
+        Log.e("str", mUpvoted.toString());
+    }
+
+    public void updateRecyclerView() {
+        mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -130,7 +138,6 @@ public class JokeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_joke_list, container, false);
-
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
@@ -193,7 +200,11 @@ public class JokeFragment extends Fragment {
         } else if (mPurpose.equals("highScores")) {
             new DownloadJokesTask().execute(new String[]{BASE_URL + HIGH_SCORES_URL});
         } else { //purpose = favorites
-            mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(mFavorites, mListener, false));
+            Bundle args = new Bundle();
+            args.putSerializable("favorites", (Serializable) mFavorites);
+            args.putSerializable("upvotes", (Serializable) mUpvoted);
+            args.putSerializable("downvotes", (Serializable) mDownvoted);
+            mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(mFavorites, mListener, false, args));
         }
 
         return view;
@@ -314,10 +325,14 @@ public class JokeFragment extends Fragment {
 
             // Everything is good, show the list of courses.
             if (!courseList.isEmpty()) {
+                Bundle args = new Bundle();
+                args.putSerializable("favorites", (Serializable) mFavorites);
+                args.putSerializable("upvotes", (Serializable) mUpvoted);
+                args.putSerializable("downvotes", (Serializable) mDownvoted);
                 if (mPurpose.equals("highScores"))
-                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, true));
+                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, true, args));
                 else
-                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, false));
+                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, false, args));
             }
         }
 

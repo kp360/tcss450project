@@ -63,7 +63,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private ImageView mUpvoteButton;
     private ImageView mDownvoteButton;
 
-    private int mAmountAdd;
+    private boolean currentlyBusy;
     private String mAction;
 
     private Joke mCurrentJoke;
@@ -115,8 +115,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
         mUpvotes = (Set<Integer>) args.getSerializable("upvotes");
         mDownvotes = (Set<Integer>) args.getSerializable("downvotes");
         mUsername = args.getString("username");
-
-        Log.e("tag", mFavorites.get(0).getJokeTitle());
     }
 
     /**
@@ -159,12 +157,18 @@ public class CustomJokeDialogFragment extends DialogFragment {
             }
         });
 
+        mFavoriteButton = (ImageView) view.findViewById(R.id.favoriteButton);
         mUpvoteButton = (ImageView) view.findViewById(R.id.upvoteButton);
         mDownvoteButton = (ImageView) view.findViewById(R.id.downvoteButton);
         checkVote();
 
         mUpvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                if (currentlyBusy)
+                    return;
+                else
+                    currentlyBusy = true;
+
                 mAction = "Upvote";
 
                 if (mVotingStatus == NO_VOTE) {
@@ -188,6 +192,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         mDownvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                if (currentlyBusy)
+                    return;
+                else
+                    currentlyBusy = true;
+
                 mAction = "Downvote";
 
                 if (mVotingStatus == NO_VOTE) {
@@ -196,11 +205,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 } else if (mVotingStatus == UPVOTED) {
                     mUpvoteButton.setImageResource(R.drawable.neutralup);
                     mDownvoteButton.setImageResource(R.drawable.downvote);
-                    mDownvotes.remove(mCurrentJokeID);
-                } else { //Downvoted.
-                    mDownvoteButton.setImageResource(R.drawable.neutraldown);
                     mUpvotes.remove(mCurrentJokeID);
                     mDownvotes.add(mCurrentJokeID);
+                } else { //Downvoted.
+                    mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                    mDownvotes.remove(mCurrentJokeID);
                 }
 
                 String url = buildURL();
@@ -335,14 +344,35 @@ public class CustomJokeDialogFragment extends DialogFragment {
                     Toast.makeText(getActivity().getApplicationContext(), mAction + "d: " + mCurrentJoke.getJokeTitle()
                             , Toast.LENGTH_LONG)
                             .show();
+                    ((JokesPage) getActivity()).refreshPage();
                 } else {
-                    if (mVotingStatus == NO_VOTE) {
-                        mDownvoteButton.setImageResource(R.drawable.neutraldown);
-                    } else if (mVotingStatus == UPVOTED) {
-                        mUpvoteButton.setImageResource(R.drawable.neutralup);
-                        mDownvoteButton.setImageResource(R.drawable.downvote);
-                    } else { //Downvoted.
-                        mDownvoteButton.setImageResource(R.drawable.neutraldown);
+
+                    if (mAction.equals("upvote")) {
+                        if (mVotingStatus == NO_VOTE) {
+                            mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                            mUpvotes.remove(mCurrentJokeID);
+                        } else if (mVotingStatus == UPVOTED) {
+                            mUpvoteButton.setImageResource(R.drawable.upvote);
+                            mDownvoteButton.setImageResource(R.drawable.downvote);
+                            mUpvotes.add(mCurrentJokeID);
+                        } else { //Downvoted.
+                            mDownvoteButton.setImageResource(R.drawable.downvote);
+                            mDownvotes.add(mCurrentJokeID);
+                            mUpvotes.remove(mCurrentJokeID);
+                        }
+                    } else {
+                        if (mVotingStatus == NO_VOTE) {
+                            mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                            mDownvotes.remove(mCurrentJokeID);
+                        } else if (mVotingStatus == UPVOTED) {
+                            mUpvoteButton.setImageResource(R.drawable.upvote);
+                            mDownvoteButton.setImageResource(R.drawable.downvote);
+                            mDownvotes.remove(mCurrentJokeID);
+                            mUpvotes.add(mCurrentJokeID);
+                        } else { //Downvoted.
+                            mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                            mDownvotes.add(mCurrentJokeID);
+                        }
                     }
                     Toast.makeText(getActivity().getApplicationContext(), "Failed to " + mAction + ": " + mCurrentJoke.getJokeTitle()
                                     + jsonObject.get("error")
@@ -353,6 +383,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Something wrong with the data" +
                         e.getMessage(), Toast.LENGTH_LONG).show();
             }
+            currentlyBusy = false;
         }
     }
 }

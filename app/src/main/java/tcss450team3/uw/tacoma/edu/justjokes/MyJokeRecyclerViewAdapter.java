@@ -1,15 +1,22 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
+import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import tcss450team3.uw.tacoma.edu.justjokes.JokeFragment.OnListFragmentInteractionListener;
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class assists the JokeFragment in displaying a smooth, scrolling list of jokes.
@@ -21,6 +28,9 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     private final List<Joke> mValues;
     private final OnListFragmentInteractionListener mListener;
     private boolean mNumbered;
+    private Set<Joke> mFavorites;
+    private Set<Integer> mUpvotes;
+    private Set<Integer> mDownvotes;
 
     /**
      * Auto-generated method, not modified by us.
@@ -28,10 +38,13 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
      * @param items Items to display in the list.
      * @param listener An OnListFragmentInteractionListener object.
      */
-    public MyJokeRecyclerViewAdapter(List<Joke> items, OnListFragmentInteractionListener listener, boolean numbered) {
+    public MyJokeRecyclerViewAdapter(List<Joke> items, OnListFragmentInteractionListener listener, boolean numbered, Bundle args) {
         mValues = items;
         mListener = listener;
         mNumbered = numbered;
+        mFavorites = new HashSet<>((List) args.getSerializable("favorites"));
+        mUpvotes = (Set<Integer>) args.getSerializable("upvotes");
+        mDownvotes = (Set<Integer>) args.getSerializable("downvotes");
     }
 
     /**
@@ -61,6 +74,19 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
             holder.mIdView.setText((position + 1) + ". " + mValues.get(position).getJokeTitle());
         else
             holder.mIdView.setText(mValues.get(position).getJokeTitle());
+
+        if (mFavorites.contains(holder.mItem))
+            holder.mFavoriteBox.setVisibility(View.VISIBLE);
+        else
+            holder.mFavoriteBox.setVisibility(View.GONE);
+        if (mUpvotes.contains(holder.mItem.getJokeID())) {
+            holder.mVoteBox.setBackgroundColor(Color.parseColor("#1ABDD4"));
+            holder.mVoteBox.setVisibility(View.VISIBLE);
+        } else if (mDownvotes.contains(holder.mItem.getJokeID())) {
+            holder.mVoteBox.setBackgroundColor(Color.YELLOW);
+            holder.mVoteBox.setVisibility(View.VISIBLE);
+        } else
+            holder.mVoteBox.setVisibility(View.GONE);
         //holder.mContentView.setText(mValues.get(position).getJokeTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -91,19 +117,21 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public final TextView mContentView;
+        public final View mVoteBox;
+        public final View mFavoriteBox;
         public Joke mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mVoteBox = view.findViewById(R.id.voteBox);
+            mFavoriteBox = view.findViewById(R.id.favoriteBox);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mIdView.getText() + "'";
         }
     }
 }
