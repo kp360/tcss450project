@@ -61,13 +61,13 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private Set<Integer> mUpvotes;
     private Set<Integer> mDownvotes;
     private String mUsername;
+    private TextView mTitleTextView;
 
     private ImageView mFavoriteButton;
     private ImageView mUpvoteButton;
     private ImageView mDownvoteButton;
-
-    private TextView mUpvoteCount;
-    private TextView mDownvoteCount;
+    private TextView mUpvoteTextView;
+    private TextView mDownvoteTextView;
 
     private LinearLayout mButtonPanel;
 
@@ -141,12 +141,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
         mJokeSetupTextView = (TextView) view.findViewById(R.id.setupText);
         mJokePunchlineTextView = (TextView) view.findViewById(R.id.punchlineText);
 
-        mButtonPanel = (LinearLayout) view.findViewById(R.id.imageButtonsPanel);
-
-        mUpvoteCount = (TextView) view.findViewById(R.id.upvoteCount);
-        //mUpvoteCount.setText(mCurrentJoke);
-        mDownvoteCount = (TextView) view.findViewById(R.id.downvoteCount);
-
         Bundle args = getArguments();
         if (args != null) {
             mCurrentJoke = (Joke) args.getSerializable(COURSE_ITEM_SELECTED);
@@ -154,6 +148,15 @@ public class CustomJokeDialogFragment extends DialogFragment {
             // Set article based on argument passed in
             updateView(mCurrentJoke);
         }
+        mTitleTextView = (TextView) view.findViewById(R.id.titleText);
+        mTitleTextView.setText(mCurrentJoke.getJokeTitle());
+
+        mUpvoteTextView = (TextView) view.findViewById(R.id.upvoteCount);
+        //mUpvoteCount.setText(mCurrentJoke);
+        mDownvoteTextView = (TextView) view.findViewById(R.id.downvoteCount);
+
+        updateCountTextViews();
+
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         builder.setView(view);
@@ -190,16 +193,21 @@ public class CustomJokeDialogFragment extends DialogFragment {
                     //add one to upvote score. mark as upvoted.
                     mUpvoteButton.setImageResource(R.drawable.upvote);
                     mUpvotes.add(mCurrentJokeID);
+                    mCurrentJoke.incrementNumUpvotes();
                 } else if (mVotingStatus == UPVOTED) {
                     mUpvoteButton.setImageResource(R.drawable.neutralup);
                     mUpvotes.remove(mCurrentJokeID);
+                    mCurrentJoke.decrementNumUpvotes();
                 } else { //Downvoted.
                     mUpvoteButton.setImageResource(R.drawable.upvote);
                     mDownvoteButton.setImageResource(R.drawable.neutraldown);
                     mDownvotes.remove(mCurrentJokeID);
                     mUpvotes.add(mCurrentJokeID);
+                    mCurrentJoke.incrementNumUpvotes();
+                    mCurrentJoke.decrementNumDownvotes();
                 }
 
+                updateCountTextViews();
                 String url = buildURL();
                 new EditVote().execute(new String[]{url});
             }
@@ -217,16 +225,21 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 if (mVotingStatus == NO_VOTE) {
                     mDownvoteButton.setImageResource(R.drawable.downvote);
                     mDownvotes.add(mCurrentJokeID);
+                    mCurrentJoke.incrementNumDownvotes();
                 } else if (mVotingStatus == UPVOTED) {
                     mUpvoteButton.setImageResource(R.drawable.neutralup);
                     mDownvoteButton.setImageResource(R.drawable.downvote);
                     mUpvotes.remove(mCurrentJokeID);
                     mDownvotes.add(mCurrentJokeID);
+                    mCurrentJoke.incrementNumDownvotes();
+                    mCurrentJoke.decrementNumUpvotes();
                 } else { //Downvoted.
                     mDownvoteButton.setImageResource(R.drawable.neutraldown);
                     mDownvotes.remove(mCurrentJokeID);
+                    mCurrentJoke.decrementNumDownvotes();
                 }
 
+                updateCountTextViews();
                 String url = buildURL();
                 new EditVote().execute(new String[]{url});
             }
@@ -249,6 +262,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
                     mFavorites.put(mCurrentJokeID, mCurrentJoke);
                 }
 
+                updateCountTextViews();
                 String url = buildFavoritesURL();
                 Log.e("", url);
                 new EditFavorite().execute(new String[]{url});
@@ -268,6 +282,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
             mJokeSetupTextView.setText(joke.getJokeSetup());
             mJokePunchlineTextView.setText(joke.getJokePunchline());
         }
+    }
+
+    private void updateCountTextViews() {
+        mUpvoteTextView.setText(Integer.toString(mCurrentJoke.getmNumUpvotes()));
+        mDownvoteTextView.setText(Integer.toString(mCurrentJoke.getmNumDownvotes()));
     }
 
     private String buildFavoritesURL() {
@@ -424,29 +443,37 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private void resetVote() {
         if (mAction.equals("Upvote")) {
             if (mVotingStatus == NO_VOTE) {
-                mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                mUpvoteButton.setImageResource(R.drawable.neutralup);
                 mUpvotes.remove(mCurrentJokeID);
+                mCurrentJoke.decrementNumUpvotes();
             } else if (mVotingStatus == UPVOTED) {
                 mUpvoteButton.setImageResource(R.drawable.upvote);
-                mDownvoteButton.setImageResource(R.drawable.downvote);
                 mUpvotes.add(mCurrentJokeID);
+                mCurrentJoke.incrementNumUpvotes();
             } else { //Downvoted.
+                mUpvoteButton.setImageResource(R.drawable.neutralup);
                 mDownvoteButton.setImageResource(R.drawable.downvote);
                 mDownvotes.add(mCurrentJokeID);
                 mUpvotes.remove(mCurrentJokeID);
+                mCurrentJoke.decrementNumUpvotes();
+                mCurrentJoke.incrementNumDownvotes();
             }
         } else {
             if (mVotingStatus == NO_VOTE) {
                 mDownvoteButton.setImageResource(R.drawable.neutraldown);
                 mDownvotes.remove(mCurrentJokeID);
+                mCurrentJoke.decrementNumDownvotes();
             } else if (mVotingStatus == UPVOTED) {
                 mUpvoteButton.setImageResource(R.drawable.upvote);
-                mDownvoteButton.setImageResource(R.drawable.downvote);
+                mDownvoteButton.setImageResource(R.drawable.neutraldown);
                 mDownvotes.remove(mCurrentJokeID);
                 mUpvotes.add(mCurrentJokeID);
+                mCurrentJoke.decrementNumDownvotes();
+                mCurrentJoke.incrementNumUpvotes();
             } else { //Downvoted.
-                mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                mDownvoteButton.setImageResource(R.drawable.downvote);
                 mDownvotes.add(mCurrentJokeID);
+                mCurrentJoke.incrementNumDownvotes();
             }
         }
     }

@@ -14,8 +14,10 @@ import tcss450team3.uw.tacoma.edu.justjokes.JokeFragment.OnListFragmentInteracti
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +87,7 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
             holder.mVoteBox.setBackgroundColor(Color.parseColor("#1ABDD4"));
             holder.mVoteBox.setVisibility(View.VISIBLE);
         } else if (mDownvotes.contains(holder.mItem.getJokeID())) {
-            holder.mVoteBox.setBackgroundColor(Color.YELLOW);
+            holder.mVoteBox.setBackgroundColor(Color.parseColor("#FFAE00"));
             holder.mVoteBox.setVisibility(View.VISIBLE);
         } else
             holder.mVoteBox.setVisibility(View.GONE);
@@ -101,6 +103,20 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
                 }
             }
         });
+    }
+
+    public void checkFavorites() {
+        Iterator<Joke> iter = mValues.iterator();
+        while (iter.hasNext()) {
+            int currJokeID = iter.next().getJokeID();
+            if (!mFavorites.keySet().contains(currJokeID)) {
+                iter.remove();
+            }
+        }
+    }
+
+    public void checkHighScores() {
+        Collections.sort(mValues, Collections.<Joke>reverseOrder());
     }
 
     /**

@@ -11,7 +11,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 
 import android.support.design.widget.Snackbar;
@@ -64,6 +67,9 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     private Set<Integer> mUpvoted;
     private Set<Integer> mDownvoted;
     private String mUsername;
+    private Spinner mDropDownPages;
+    private String[] mDropDownValues;
+    private int mNumPages;
 
     /**
      * This method handles opening a CustomJokeDialogFragment when a joke in the list is tapped on.
@@ -122,10 +128,10 @@ Log.e("tag",  "luanchign.");
 
         List<Fragment> pages = new ArrayList<>();
 
-        JokeFragment jokeFragment = new JokeFragment();
+        final JokeFragment jokeFragment = new JokeFragment();
         Bundle args = new Bundle();
-        int numPagesOfJokes = getIntent().getIntExtra("numPages", 0);
-        args.putInt("numPages", numPagesOfJokes);
+        mNumPages = getIntent().getIntExtra("numPages", 0);
+        args.putInt("numPages", mNumPages);
         args.putString("purpose", "jokeViewer");
         args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
         args.putSerializable("upvotes", (Serializable) mUpvoted);
@@ -177,6 +183,27 @@ Log.e("tag",  "luanchign.");
             @Override
             public void onPageScrollStateChanged(int state) {
 
+            }
+        });
+
+        mDropDownValues = new String[mNumPages];
+        for (int i = 0; i < mDropDownValues.length; i++) {
+            mDropDownValues[i] = Integer.toString(i + 1);
+        }
+
+        mDropDownPages = (Spinner) findViewById(R.id.dropDownPages);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(JokesPage.this,
+                android.R.layout.simple_spinner_item, mDropDownValues);
+        mDropDownPages.setAdapter(adapter);
+        mDropDownPages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                jokeFragment.changePage(position + 1);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+               //Do nothing.
             }
         });
 

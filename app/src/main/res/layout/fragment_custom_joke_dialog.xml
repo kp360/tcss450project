@@ -10,6 +10,21 @@
     android:gravity="center">
 
     <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        />
+
+    <View
+        android:paddingBottom="16dp"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimaryDark"/>
+
+    <TextView
         android:id="@+id/setupText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -78,8 +93,7 @@
                     <TextView
                         android:id="@+id/upvoteCount"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -98,8 +112,7 @@
                     <TextView
                         android:id="@+id/downvoteCount"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
 

@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,6 +125,11 @@ public class JokeFragment extends Fragment {
     }
 
     public void updateRecyclerView() {
+        MyJokeRecyclerViewAdapter currAdapter = (MyJokeRecyclerViewAdapter) mRecyclerView.getAdapter();
+        if (mPurpose.equals("favorites"))
+            currAdapter.checkFavorites();
+        else if (mPurpose.equals("highScores"))
+            currAdapter.checkHighScores();
         mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
@@ -152,12 +158,12 @@ public class JokeFragment extends Fragment {
         }
 
         if (mPurpose.equals("jokeViewer")) {
-            DownloadJokesTask task = new DownloadJokesTask();
-
-            task.execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
+            new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
 
             final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
             final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
+
+            final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
 
             //Decrements the current page number variable and loads the jokes from that page.
             //Enables/disables buttons accordingly.
@@ -169,6 +175,8 @@ public class JokeFragment extends Fragment {
 
                     if (!nextButton.isEnabled())
                         nextButton.setEnabled(true);
+
+                    dropDownList.setSelection(mCurrentPageNum - 1);
 
                     new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
                     updatePageNumTextView();
@@ -185,6 +193,8 @@ public class JokeFragment extends Fragment {
 
                     if (!prevButton.isEnabled())
                         prevButton.setEnabled(true);
+
+                    dropDownList.setSelection(mCurrentPageNum - 1);
 
                     new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
                     updatePageNumTextView();
@@ -212,11 +222,30 @@ public class JokeFragment extends Fragment {
         return view;
     }
 
+    public void changePage(int newPage) {
+        if (mCurrentPageNum == newPage)
+            return;
+
+        final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
+        final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
+        mCurrentPageNum = newPage;
+        if (mCurrentPageNum == mNumPages)
+            nextButton.setEnabled(false);
+        else
+            nextButton.setEnabled(true);
+        if (mCurrentPageNum == 1)
+            prevButton.setEnabled(false);
+        else
+            prevButton.setEnabled(true);
+
+        new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
+    }
+
     /**
      * This method is used to update the TextView that shows the current page number.
      */
     private void updatePageNumTextView() {
-        mPageNumTextView.setText(PAGE_TEXT + mCurrentPageNum + " ");
+        //mPageNumTextView.setText(PAGE_TEXT + mCurrentPageNum + " ");
     }
 
     /**

@@ -13,9 +13,10 @@ import java.util.Map;
  *
  * @author Vlad (2.15.17)
  */
-public class Joke implements Serializable {
+public class Joke implements Serializable, Comparable {
     public static final String JOKE_ID = "jokeID", JOKE_TITLE = "jokeTitle"
-            , JOKE_SETUP = "jokeSetup", JOKE_PUNCHLINE = "jokePunchline";
+            , JOKE_SETUP = "jokeSetup", JOKE_PUNCHLINE = "jokePunchline"
+            , NUM_UPVOTES = "numUVotes", NUM_DOWNVOTES = "numDVotes";
 
     /** A Joke's unique ID number. */
     private int mJokeID;
@@ -29,6 +30,12 @@ public class Joke implements Serializable {
     /** A Joke's ending. */
     private String mJokePunchline;
 
+    /** A Joke's ending. */
+    private int mNumUpvotes;
+
+    /** A Joke's ending. */
+    private int mNumDownvotes;
+
     /**
      * Constructor to initialize all the fields.
      *
@@ -37,11 +44,13 @@ public class Joke implements Serializable {
      * @param jokeSetup The Joke's beginning.
      * @param jokePunchline The Joke's conclusion.
      */
-    public Joke(int jokeID, String jokeTitle, String jokeSetup, String jokePunchline) {
+    public Joke(int jokeID, String jokeTitle, String jokeSetup, String jokePunchline, int numUpvotes, int numDownvotes) {
         this.mJokeID = jokeID;
         this.mJokeTitle = jokeTitle;
         this.mJokeSetup = jokeSetup;
         this.mJokePunchline = jokePunchline;
+        this.mNumUpvotes = numUpvotes;
+        this.mNumDownvotes = numDownvotes;
     }
 
     /**
@@ -59,7 +68,8 @@ public class Joke implements Serializable {
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject obj = arr.getJSONObject(i);
                     Joke joke = new Joke(obj.getInt(Joke.JOKE_ID), obj.getString(Joke.JOKE_TITLE)
-                            , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE));
+                            , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE)
+                            , obj.getInt(Joke.NUM_UPVOTES), obj.getInt(Joke.NUM_DOWNVOTES));
                     jokeList.add(joke);
                 }
             } catch (JSONException e) {
@@ -85,7 +95,8 @@ public class Joke implements Serializable {
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject obj = arr.getJSONObject(i);
                     Joke joke = new Joke(obj.getInt(Joke.JOKE_ID), obj.getString(Joke.JOKE_TITLE)
-                            , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE));
+                            , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE)
+                            , obj.getInt(Joke.NUM_UPVOTES), obj.getInt(Joke.NUM_DOWNVOTES));
                     jokeList.put(joke.getJokeID(), joke);
                 }
             } catch (JSONException e) {
@@ -94,6 +105,22 @@ public class Joke implements Serializable {
 
         }
         return reason;
+    }
+
+    public void incrementNumUpvotes() {
+        mNumUpvotes += 1;
+    }
+
+    public void decrementNumUpvotes() {
+        mNumUpvotes -= 1;
+    }
+
+    public void incrementNumDownvotes() {
+        mNumDownvotes += 1;
+    }
+
+    public void decrementNumDownvotes() {
+        mNumDownvotes -= 1;
     }
 
     public int getJokeID() {
@@ -122,5 +149,34 @@ public class Joke implements Serializable {
 
     public void setJokePunchline(String jokePunchline) {
         this.mJokePunchline = jokePunchline;
+    }
+
+    public int getmNumUpvotes() {
+        return mNumUpvotes;
+    }
+
+    public void setmNumUpvotes(int mNumUpvotes) {
+        this.mNumUpvotes = mNumUpvotes;
+    }
+
+    public int getmNumDownvotes() {
+        return mNumDownvotes;
+    }
+
+    public void setmNumDownvotes(int mNumDownvotes) {
+        this.mNumDownvotes = mNumDownvotes;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Joke other = (Joke) o;
+        if (this.getmNumUpvotes() != other.getmNumUpvotes())
+            return this.getmNumUpvotes() - other.getmNumUpvotes();
+        else {
+            if (this.getmNumDownvotes() != other.getmNumDownvotes())
+                return other.getmNumDownvotes() - this.getmNumDownvotes();
+            else
+                return other.getJokeTitle().compareTo(this.getJokeTitle());
+        }
     }
 }
