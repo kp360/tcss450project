@@ -208,7 +208,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
                     int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
-
+                     
                     JSONArray favoriteJokes = (JSONArray) jsonObject.get("favorites");
                     String upvoted = (String)jsonObject.get("upvotes");
                     String downvoted = (String)jsonObject.get("downvotes");
