@@ -197,20 +197,24 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             try {
+                Log.i("sdfsd",result);
                 JSONObject jsonObject = new JSONObject(result);
+                Log.i("sdf", "start");
                 String status = (String) jsonObject.get("result");
+                Log.i("sdf", "here");
                 if (status.equals("success")) {
                     String username = mUserUsernameEditText.getText().toString();
+
                     Toast.makeText(getApplicationContext(), "Welcome back, " + username + "!"
                             , Toast.LENGTH_LONG)
                             .show();
 
-                    double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
-                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
+                    double totalNumOfJokes = Double.parseDouble((String) jsonObject.get("numJokes"));
+                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes / NUM_JOKES_PER_PAGE);
 
                     JSONArray favoriteJokes = (JSONArray) jsonObject.get("favorites");
-                    String upvoted = (String)jsonObject.get("upvotes");
-                    String downvoted = (String)jsonObject.get("downvotes");
+                    String upvoted = (String) jsonObject.get("upvotes");
+                    String downvoted = (String) jsonObject.get("downvotes");
 
                     Intent intent = new Intent(getApplicationContext(), JokesPage.class);
                     intent.putExtra("numPages", numPagesOfJokes);
@@ -254,7 +258,6 @@ public class LoginActivity extends AppCompatActivity {
             HttpURLConnection urlConnection = null;
             for (String url : urls) {
                 try {
-                    System.out.println("register doinbackground");
                     URL urlObject = new URL(url);
                     urlConnection = (HttpURLConnection) urlObject.openConnection();
 
@@ -304,8 +307,7 @@ public class LoginActivity extends AppCompatActivity {
                             .show();
                 }
             } catch (JSONException e) {
-                Toast.makeText(getApplicationContext(), "Something wrong with the data" +
-                        e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Please check your internet connection.", Toast.LENGTH_LONG).show();
             }
         }
     }

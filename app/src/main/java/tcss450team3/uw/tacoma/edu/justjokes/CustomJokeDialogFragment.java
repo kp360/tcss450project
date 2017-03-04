@@ -10,9 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,9 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,7 +57,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private Set<Integer> mUpvotes;
     private Set<Integer> mDownvotes;
     private String mUsername;
-    private TextView mTitleTextView;
 
     private ImageView mFavoriteButton;
     private ImageView mUpvoteButton;
@@ -69,9 +64,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private TextView mUpvoteTextView;
     private TextView mDownvoteTextView;
 
-    private LinearLayout mButtonPanel;
-
-    private boolean currentlyBusy;
+    private boolean mCurrentlyBusy;
     private String mAction;
 
     private Joke mCurrentJoke;
@@ -79,10 +72,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
     private int mVotingStatus;
     private boolean isFavorite;
-
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     /** Auto-generated variable, used to detect user interaction. */
     private OnFragmentInteractionListener mListener;
@@ -95,19 +84,12 @@ public class CustomJokeDialogFragment extends DialogFragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * Auto-generated method, not modified by us.
+     * Auto-generated method, cleaned up by us.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CustomJokeDialogFragment.
+     * @return A new instance of fragment CustomAdminJokeDialogFragment.
      */
-    public static CustomJokeDialogFragment newInstance(String param1, String param2) {
-        CustomJokeDialogFragment fragment = new CustomJokeDialogFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static CustomJokeDialogFragment newInstance() {
+        return new CustomJokeDialogFragment();
     }
 
     /**
@@ -145,14 +127,12 @@ public class CustomJokeDialogFragment extends DialogFragment {
         if (args != null) {
             mCurrentJoke = (Joke) args.getSerializable(COURSE_ITEM_SELECTED);
             mCurrentJokeID = mCurrentJoke.getJokeID();
-            // Set article based on argument passed in
-            updateView(mCurrentJoke);
+            updateView();
         }
-        mTitleTextView = (TextView) view.findViewById(R.id.titleText);
-        mTitleTextView.setText(mCurrentJoke.getJokeTitle());
+        final TextView titleTextView = (TextView) view.findViewById(R.id.titleText);
+        titleTextView.setText(mCurrentJoke.getJokeTitle());
 
         mUpvoteTextView = (TextView) view.findViewById(R.id.upvoteCount);
-        //mUpvoteCount.setText(mCurrentJoke);
         mDownvoteTextView = (TextView) view.findViewById(R.id.downvoteCount);
 
         updateCountTextViews();
@@ -166,10 +146,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
         mShowButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (mJokePunchlineTextView.getVisibility() == View.INVISIBLE) {
-                    mJokePunchlineTextView.setVisibility(view.VISIBLE);
+                    mJokePunchlineTextView.setVisibility(View.VISIBLE);
                     mShowButton.setText("Hide Punchline");
                 } else {
-                    mJokePunchlineTextView.setVisibility(view.INVISIBLE);
+                    mJokePunchlineTextView.setVisibility(View.INVISIBLE);
                     mShowButton.setText("Show Punchline");
                 }
             }
@@ -182,10 +162,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         mUpvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (currentlyBusy)
+                if (mCurrentlyBusy)
                     return;
                 else
-                    currentlyBusy = true;
+                    mCurrentlyBusy = true;
 
                 mAction = "Upvote";
 
@@ -208,17 +188,16 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 }
 
                 updateCountTextViews();
-                String url = buildURL();
-                new EditVote().execute(new String[]{url});
+                new EditVote().execute(buildURL());
             }
         });
 
         mDownvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (currentlyBusy)
+                if (mCurrentlyBusy)
                     return;
                 else
-                    currentlyBusy = true;
+                    mCurrentlyBusy = true;
 
                 mAction = "Downvote";
 
@@ -247,10 +226,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         mFavoriteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (currentlyBusy)
+                if (mCurrentlyBusy)
                     return;
                 else
-                    currentlyBusy = true;
+                    mCurrentlyBusy = true;
 
                 if (isFavorite) {
                     mFavoriteButton.setMaxWidth(56);
@@ -275,12 +254,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
     /**
      * This method updates the proper text views to display the joke's setup and punchline.
      *
-     * @param joke A Joke object to retrieve data from.
      */
-    public void updateView(Joke joke) {
-        if (joke != null) {
-            mJokeSetupTextView.setText(joke.getJokeSetup());
-            mJokePunchlineTextView.setText(joke.getJokePunchline());
+    public void updateView() {
+        if (mCurrentJoke != null) {
+            mJokeSetupTextView.setText(mCurrentJoke.getJokeSetup());
+            mJokePunchlineTextView.setText(mCurrentJoke.getJokePunchline());
         }
     }
 
@@ -436,7 +414,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Please check your internet connection."
                         , Toast.LENGTH_LONG).show();
             }
-            currentlyBusy = false;
+            mCurrentlyBusy = false;
         }
     }
 
@@ -553,7 +531,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Please check your internet connection."
                         , Toast.LENGTH_LONG).show();
             }
-            currentlyBusy = false;
+            mCurrentlyBusy = false;
         }
     }
 }

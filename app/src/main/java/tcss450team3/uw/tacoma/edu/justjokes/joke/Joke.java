@@ -16,7 +16,8 @@ import java.util.Map;
 public class Joke implements Serializable, Comparable {
     public static final String JOKE_ID = "jokeID", JOKE_TITLE = "jokeTitle"
             , JOKE_SETUP = "jokeSetup", JOKE_PUNCHLINE = "jokePunchline"
-            , NUM_UPVOTES = "numUVotes", NUM_DOWNVOTES = "numDVotes";
+            , NUM_UPVOTES = "numUVotes", NUM_DOWNVOTES = "numDVotes"
+            , USER_SUBMITTED="userName";
 
     /** A Joke's unique ID number. */
     private int mJokeID;

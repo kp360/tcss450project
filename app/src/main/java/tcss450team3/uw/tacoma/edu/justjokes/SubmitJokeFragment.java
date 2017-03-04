@@ -1,6 +1,7 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,9 +18,6 @@ import java.net.URLEncoder;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link SubmitJokeFragment.SubmitJokeListener} interface
- * to handle interaction events.
  * Use the {@link SubmitJokeFragment#newInstance} factory method to
  * create an instance of this fragment.
  *
@@ -29,23 +27,11 @@ import java.net.URLEncoder;
  * 3/1/17
  */
 public class SubmitJokeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    private static final String JOKE_SUB_URL
-            = "http://cssgate.insttech.washington.edu/~_450bteam3/addJoke.php?";
-
     private EditText mJokeTitleEdit;
     private EditText mJokeSetupEdit;
     private EditText mJokePunchlineEdit;
 
-    private SubmitJokeListener mListener;
+    private String mUsername;
 
     public SubmitJokeFragment() {
         // Required empty public constructor
@@ -59,22 +45,15 @@ public class SubmitJokeFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment SubmitJokeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static SubmitJokeFragment newInstance(String param1, String param2) {
-        SubmitJokeFragment fragment = new SubmitJokeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        return new SubmitJokeFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mUsername = getArguments().getString("username");
         }
     }
 
@@ -91,80 +70,66 @@ public class SubmitJokeFragment extends Fragment {
         addCourseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = buildJokeURL(v);
-                mListener.submitJoke(url);
+                submitJoke(buildEmailMessage(v), v);
+            }
+        });
+
+        Button clearButton = (Button) v.findViewById(R.id.clear_fields_button);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mJokeTitleEdit.setText("");
+                mJokeSetupEdit.setText("");
+                mJokePunchlineEdit.setText("");
             }
         });
 
         return v;
     }
 
-//    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof SubmitJokeListener) {
-            mListener = (SubmitJokeListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface SubmitJokeListener {
-        // TODO: Update argument type and name
-        public void submitJoke(String url);
-    }
-
-    private String buildJokeURL(View v) {
-
-        StringBuilder sb = new StringBuilder(JOKE_SUB_URL);
+    private String buildEmailMessage(View v) {
+        StringBuilder sb = new StringBuilder("Joke Title: ");
 
         try {
+            String jokeTitle = mJokeTitleEdit.getText().toString();
+            sb.append(jokeTitle);
 
-            String courseId = mJokeTitleEdit.getText().toString();
-            sb.append("jokeTitle=");
-            sb.append(courseId);
+            String jokeSetup = mJokeSetupEdit.getText().toString();
+            sb.append("\nJoke Setup: ");
+            sb.append(jokeSetup);
 
+            String jokePunchline = mJokePunchlineEdit.getText().toString();
+            sb.append("\nJoke Punchline: ");
+            sb.append(jokePunchline);
 
-            String courseShortDesc = mJokeSetupEdit.getText().toString();
-            sb.append("&jokeSetup=");
-            sb.append(URLEncoder.encode(courseShortDesc, "UTF-8"));
-
-
-            String courseLongDesc = mJokePunchlineEdit.getText().toString();
-            sb.append("&jokePunchline=");
-            sb.append(URLEncoder.encode(courseLongDesc, "UTF-8"));
-
-            Log.i("SubmitJokeFragment", sb.toString());
-
+            sb.append("\nSubmitted by: ");
+            sb.append(mUsername);
         }
         catch(Exception e) {
             Toast.makeText(v.getContext(), "Something wrong with the url" + e.getMessage(), Toast.LENGTH_LONG)
                     .show();
         }
         return sb.toString();
+    }
+
+    public void submitJoke(String emailMessage, View v) {
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("message/rfc822");
+
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"JustJokesReview@gmail.com"});
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Joke Submission: " + mJokeTitleEdit.getText().toString());
+        emailIntent.putExtra(Intent.EXTRA_TEXT, emailMessage);
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(getActivity().getApplicationContext(),
+                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

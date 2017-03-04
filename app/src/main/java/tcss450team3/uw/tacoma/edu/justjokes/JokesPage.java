@@ -1,6 +1,7 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -58,7 +59,7 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
  * @author Vlad (2.16.17)
  */
 
-public class JokesPage extends AppCompatActivity implements JokeFragment.OnListFragmentInteractionListener, SubmitJokeFragment.SubmitJokeListener {
+public class JokesPage extends AppCompatActivity implements JokeFragment.OnListFragmentInteractionListener {
 
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     ViewPager mViewPager;
@@ -72,10 +73,10 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     private int mNumPages;
 
     /**
-     * This method handles opening a CustomJokeDialogFragment when a joke in the list is tapped on.
+     * This method handles opening a CustomAdminJokeDialogFragment when a joke in the list is tapped on.
      *
      * @param joke The Joke whose values (setup, punchline) will be displayed in the
-     *             CustomJokeDialogFragment.
+     *             CustomAdminJokeDialogFragment.
      */
     @Override
     public void onListFragmentInteraction(Joke joke) {
@@ -87,7 +88,6 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         args.putString("username", mUsername);
         args.putSerializable(jokeDetailFragment.COURSE_ITEM_SELECTED, joke);
         jokeDetailFragment.setArguments(args);
-Log.e("tag",  "luanchign.");
         jokeDetailFragment.show(getSupportFragmentManager(), "launch");
     }
 
@@ -158,6 +158,9 @@ Log.e("tag",  "luanchign.");
         pages.add(favoritesFragment);
 
         SubmitJokeFragment submitJoke = new SubmitJokeFragment();
+        args = new Bundle();
+        args.putString("username", mUsername);
+        submitJoke.setArguments(args);
         pages.add(submitJoke);
 
         mDemoCollectionPagerAdapter =
@@ -254,21 +257,14 @@ Log.e("tag",  "luanchign.");
     }
 
     /**
-     * This method overrides the bac k button, that way you can't use the back button
-     * to close out of the app. (I think) Pressing the back button pops the joke list off the stack
+     * This method overrides the back button, that way you can't use the back button
+     * to close out of the app. Pressing the back button pops the joke list off the stack
      * so when you reopen the app you have to log in again.
      *
      */
     @Override
     public void onBackPressed() {
-        // Do Here what ever you want do on back press;
-    }
-
-    @Override
-    public void submitJoke(String url) {
-        System.out.println("submit joke is being called");
-        SubmitJokeTask task = new SubmitJokeTask();
-        task.execute(new String[]{url.toString()});
+        // Leaving blank to disable back button functionality.
     }
 
     private class DemoCollectionPagerAdapter extends FragmentPagerAdapter {
@@ -302,76 +298,6 @@ Log.e("tag",  "luanchign.");
                     return "Submit Joke";
             }
             return null;
-        }
-    }
-
-    private class SubmitJokeTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... urls) {
-            String response = "";
-            HttpURLConnection urlConnection = null;
-            for (String url : urls) {
-                try {
-                    URL urlObject = new URL(url);
-                    urlConnection = (HttpURLConnection) urlObject.openConnection();
-
-                    InputStream content = urlConnection.getInputStream();
-
-                    BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
-                    String s = "";
-                    while ((s = buffer.readLine()) != null) {
-                        response += s;
-                    }
-
-                } catch (Exception e) {
-                    System.out.println("SubmitJokeTask failed");
-                    response = "Unable to submit joke, Reason: "
-                            + e.getMessage();
-                } finally {
-                    if (urlConnection != null)
-                        urlConnection.disconnect();
-                }
-            }
-            return response;
-        }
-
-
-        /**
-         * It checks to see if there was a problem with the URL(Network) which is when an
-         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
-         * If not, it displays the exception.
-         *
-         * @param result
-         */
-        @Override
-        protected void onPostExecute(String result) {
-            // Something wrong with the network or the URL.
-            try {
-                JSONObject jsonObject = new JSONObject(result);
-                String status = (String) jsonObject.get("result");
-                if (status.equals("success")) {
-                    EditText jokeTitle = (EditText)findViewById(R.id.sub_joke_title_field);
-                    EditText jokeSetup = (EditText)findViewById(R.id.sub_joke_setup_field);
-                    EditText jokePunchline = (EditText)findViewById(R.id.sub_joke_punchline_field);
-
-                    jokeTitle.setText("");
-                    jokeSetup.setText("");
-                    jokePunchline.setText("");
-
-                    Toast.makeText(getApplicationContext(), "Joke successfully added!"
-                            , Toast.LENGTH_LONG)
-                            .show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Failed to add: "
-                                    + jsonObject.get("error")
-                            , Toast.LENGTH_LONG)
-                            .show();
-                }
-            } catch (JSONException e) {
-                Toast.makeText(getApplicationContext(), "Something wrong with the data" +
-                        e.getMessage(), Toast.LENGTH_LONG).show();
-            }
         }
     }
 }

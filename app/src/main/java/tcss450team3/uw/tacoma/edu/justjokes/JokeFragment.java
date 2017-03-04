@@ -43,9 +43,6 @@ public class JokeFragment extends Fragment {
 
     private static final String JOKES_URL = "list.php?page=";
 
-    private static final String HIGH_SCORES_URL
-            = "getHighScores.php";
-
     /** This text is used to convey to the user what page they're currently on. */
     private static final String PAGE_TEXT = " Page: ";
 
@@ -121,7 +118,6 @@ public class JokeFragment extends Fragment {
             mUpvoted = (Set<Integer>) args.getSerializable("upvotes");
             mDownvoted = (Set<Integer>) args.getSerializable("downvotes");
         }
-        Log.e("str", mUpvoted.toString());
     }
 
     public void updateRecyclerView() {
@@ -157,66 +153,73 @@ public class JokeFragment extends Fragment {
             }
         }
 
-        if (mPurpose.equals("jokeViewer")) {
-            new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
+        switch (mPurpose) {
+            case "jokeViewer":
+                new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
 
-            final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
-            final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
+                final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
+                final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
-            final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
+                final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
 
-            //Decrements the current page number variable and loads the jokes from that page.
-            //Enables/disables buttons accordingly.
-            prevButton.setOnClickListener(new Button.OnClickListener() {
-                public void onClick(View v) {
-                    mCurrentPageNum--;
-                    if (mCurrentPageNum == 1)
-                        prevButton.setEnabled(false);
+                //Decrements the current page number variable and loads the jokes from that page.
+                //Enables/disables buttons accordingly.
+                prevButton.setOnClickListener(new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        mCurrentPageNum--;
+                        if (mCurrentPageNum == 1)
+                            prevButton.setEnabled(false);
 
-                    if (!nextButton.isEnabled())
-                        nextButton.setEnabled(true);
+                        if (!nextButton.isEnabled())
+                            nextButton.setEnabled(true);
 
-                    dropDownList.setSelection(mCurrentPageNum - 1);
+                        dropDownList.setSelection(mCurrentPageNum - 1);
 
-                    new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
-                    updatePageNumTextView();
-                }
-            });
+                        new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
+                        updatePageNumTextView();
+                    }
+                });
 
-            //Increments the current page number variable and loads the jokes from that page.
-            //Enables/disables buttons accordingly.
-            nextButton.setOnClickListener(new Button.OnClickListener() {
-                public void onClick(View v) {
-                    mCurrentPageNum++;
-                    if (mCurrentPageNum == mNumPages)
-                        nextButton.setEnabled(false);
+                //Increments the current page number variable and loads the jokes from that page.
+                //Enables/disables buttons accordingly.
+                nextButton.setOnClickListener(new Button.OnClickListener() {
+                    public void onClick(View v) {
+                        mCurrentPageNum++;
+                        if (mCurrentPageNum == mNumPages)
+                            nextButton.setEnabled(false);
 
-                    if (!prevButton.isEnabled())
-                        prevButton.setEnabled(true);
+                        if (!prevButton.isEnabled())
+                            prevButton.setEnabled(true);
 
-                    dropDownList.setSelection(mCurrentPageNum - 1);
+                        dropDownList.setSelection(mCurrentPageNum - 1);
 
-                    new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
-                    updatePageNumTextView();
-                }
-            });
+                        new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
+                        updatePageNumTextView();
+                    }
+                });
 
-            if (mCurrentPageNum == 1)
-                prevButton.setEnabled(false);
+                if (mCurrentPageNum == 1)
+                    prevButton.setEnabled(false);
 
-            if (mCurrentPageNum == mNumPages)
-                nextButton.setEnabled(false);
+                if (mCurrentPageNum == mNumPages)
+                    nextButton.setEnabled(false);
 
-            mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
-            updatePageNumTextView();
-        } else if (mPurpose.equals("highScores")) {
-            new DownloadJokesTask().execute(new String[]{BASE_URL + HIGH_SCORES_URL});
-        } else { //purpose = favorites
-            Bundle args = new Bundle();
-            args.putSerializable("favorites", (Serializable) mFavorites);
-            args.putSerializable("upvotes", (Serializable) mUpvoted);
-            args.putSerializable("downvotes", (Serializable) mDownvoted);
-            mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(new ArrayList<Joke>(mFavorites.values()), mListener, false, args));
+                mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
+                updatePageNumTextView();
+                break;
+            case "highScores":
+                new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
+                break;
+            case "favorites":
+                Bundle args = new Bundle();
+                args.putSerializable("favorites", (Serializable) mFavorites);
+                args.putSerializable("upvotes", (Serializable) mUpvoted);
+                args.putSerializable("downvotes", (Serializable) mDownvoted);
+                mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(new ArrayList<Joke>(mFavorites.values()), mListener, false, args));
+                break;
+            default:
+                new DownloadJokesTask().execute(BASE_URL + "getJokesToReview.php");
+                break;
         }
 
         return view;
@@ -238,7 +241,7 @@ public class JokeFragment extends Fragment {
         else
             prevButton.setEnabled(true);
 
-        new DownloadJokesTask().execute(new String[]{BASE_URL + JOKES_URL + mCurrentPageNum});
+        new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
     }
 
     /**
@@ -366,7 +369,5 @@ public class JokeFragment extends Fragment {
                     mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, false, args));
             }
         }
-
     }
-
 }

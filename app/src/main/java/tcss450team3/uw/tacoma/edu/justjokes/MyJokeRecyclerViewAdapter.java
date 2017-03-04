@@ -79,19 +79,18 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         else
             holder.mIdView.setText(mValues.get(position).getJokeTitle());
 
-        if (mFavorites.keySet().contains(holder.mItem.getJokeID()))
+        if (mFavorites != null && mFavorites.keySet().contains(holder.mItem.getJokeID()))
             holder.mFavoriteBox.setVisibility(View.VISIBLE);
         else
             holder.mFavoriteBox.setVisibility(View.GONE);
-        if (mUpvotes.contains(holder.mItem.getJokeID())) {
+        if (mUpvotes != null && mUpvotes.contains(holder.mItem.getJokeID())) {
             holder.mVoteBox.setBackgroundColor(Color.parseColor("#1ABDD4"));
             holder.mVoteBox.setVisibility(View.VISIBLE);
-        } else if (mDownvotes.contains(holder.mItem.getJokeID())) {
+        } else if (mDownvotes != null && mDownvotes.contains(holder.mItem.getJokeID())) {
             holder.mVoteBox.setBackgroundColor(Color.parseColor("#FFAE00"));
             holder.mVoteBox.setVisibility(View.VISIBLE);
         } else
             holder.mVoteBox.setVisibility(View.GONE);
-        //holder.mContentView.setText(mValues.get(position).getJokeTitle());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
