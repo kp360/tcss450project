@@ -123,6 +123,7 @@
                 android:gravity="right"
                 android:layout_gravity="center_vertical"
                 android:paddingLeft="10dp">
+
                 <ImageView
                     android:id="@+id/favoriteButton"
                     android:layout_width="55dp"
