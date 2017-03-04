@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Joke class to handle all the pieces of an individual joke.
@@ -60,6 +61,32 @@ public class Joke implements Serializable {
                     Joke joke = new Joke(obj.getInt(Joke.JOKE_ID), obj.getString(Joke.JOKE_TITLE)
                             , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE));
                     jokeList.add(joke);
+                }
+            } catch (JSONException e) {
+                reason =  "Unable to parse data, Reason: " + e.getMessage();
+            }
+
+        }
+        return reason;
+    }
+
+    /**
+     * Parses the json string, returns an error message if unsuccessful.
+     * Returns course list if success.
+     * @param courseJSON The JSON that contains all of the Jokes' info.
+     * @return reason or null if successful.
+     */
+    public static String parseCourseJSON(String courseJSON, Map<Integer, Joke> jokeList) {
+        String reason = null;
+        if (courseJSON != null) {
+            try {
+                JSONArray arr = new JSONArray(courseJSON);
+
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject obj = arr.getJSONObject(i);
+                    Joke joke = new Joke(obj.getInt(Joke.JOKE_ID), obj.getString(Joke.JOKE_TITLE)
+                            , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE));
+                    jokeList.put(joke.getJokeID(), joke);
                 }
             } catch (JSONException e) {
                 reason =  "Unable to parse data, Reason: " + e.getMessage();

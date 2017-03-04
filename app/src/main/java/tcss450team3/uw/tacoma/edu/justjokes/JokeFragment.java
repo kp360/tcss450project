@@ -24,7 +24,9 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -62,7 +64,7 @@ public class JokeFragment extends Fragment {
 
     private String mPurpose;
 
-    private List<Joke> mFavorites;
+    private Map<Integer, Joke> mFavorites;
 
     private Set<Integer> mUpvoted;
 
@@ -114,7 +116,7 @@ public class JokeFragment extends Fragment {
         if (args != null) {
             mNumPages = args.getInt("numPages");
             mPurpose = args.getString("purpose");
-            mFavorites = (List) args.getSerializable("favoritesList");
+            mFavorites = (Map<Integer, Joke>) args.getSerializable("favoritesMap");
             mUpvoted = (Set<Integer>) args.getSerializable("upvotes");
             mDownvoted = (Set<Integer>) args.getSerializable("downvotes");
         }
@@ -204,7 +206,7 @@ public class JokeFragment extends Fragment {
             args.putSerializable("favorites", (Serializable) mFavorites);
             args.putSerializable("upvotes", (Serializable) mUpvoted);
             args.putSerializable("downvotes", (Serializable) mDownvoted);
-            mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(mFavorites, mListener, false, args));
+            mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(new ArrayList<Joke>(mFavorites.values()), mListener, false, args));
         }
 
         return view;

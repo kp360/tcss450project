@@ -14,8 +14,10 @@ import tcss450team3.uw.tacoma.edu.justjokes.JokeFragment.OnListFragmentInteracti
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,7 +30,7 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     private final List<Joke> mValues;
     private final OnListFragmentInteractionListener mListener;
     private boolean mNumbered;
-    private Set<Joke> mFavorites;
+    private Map<Integer, Joke> mFavorites;
     private Set<Integer> mUpvotes;
     private Set<Integer> mDownvotes;
 
@@ -42,7 +44,7 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         mValues = items;
         mListener = listener;
         mNumbered = numbered;
-        mFavorites = new HashSet<>((List) args.getSerializable("favorites"));
+        mFavorites = (HashMap<Integer, Joke>) args.getSerializable("favorites");
         mUpvotes = (Set<Integer>) args.getSerializable("upvotes");
         mDownvotes = (Set<Integer>) args.getSerializable("downvotes");
     }
@@ -75,7 +77,7 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         else
             holder.mIdView.setText(mValues.get(position).getJokeTitle());
 
-        if (mFavorites.contains(holder.mItem))
+        if (mFavorites.keySet().contains(holder.mItem.getJokeID()))
             holder.mFavoriteBox.setVisibility(View.VISIBLE);
         else
             holder.mFavoriteBox.setVisibility(View.GONE);

@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +25,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
@@ -54,7 +57,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     /** The Button that hides/shows a joke's punchline. */
     private Button mShowButton;
 
-    private List<Joke> mFavorites;
+    private Map<Integer, Joke> mFavorites;
     private Set<Integer> mUpvotes;
     private Set<Integer> mDownvotes;
     private String mUsername;
@@ -63,6 +66,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private ImageView mUpvoteButton;
     private ImageView mDownvoteButton;
 
+    private TextView mUpvoteCount;
+    private TextView mDownvoteCount;
+
+    private LinearLayout mButtonPanel;
+
     private boolean currentlyBusy;
     private String mAction;
 
@@ -70,6 +78,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     private int mCurrentJokeID;
 
     private int mVotingStatus;
+    private boolean isFavorite;
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -111,7 +120,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
-        mFavorites = (List) args.getSerializable("favorites");
+        mFavorites = (HashMap<Integer, Joke>) args.getSerializable("favorites");
         mUpvotes = (Set<Integer>) args.getSerializable("upvotes");
         mDownvotes = (Set<Integer>) args.getSerializable("downvotes");
         mUsername = args.getString("username");
@@ -131,6 +140,12 @@ public class CustomJokeDialogFragment extends DialogFragment {
         View view =  inflater.inflate(R.layout.fragment_custom_joke_dialog, null);
         mJokeSetupTextView = (TextView) view.findViewById(R.id.setupText);
         mJokePunchlineTextView = (TextView) view.findViewById(R.id.punchlineText);
+
+        mButtonPanel = (LinearLayout) view.findViewById(R.id.imageButtonsPanel);
+
+        mUpvoteCount = (TextView) view.findViewById(R.id.upvoteCount);
+        //mUpvoteCount.setText(mCurrentJoke);
+        mDownvoteCount = (TextView) view.findViewById(R.id.downvoteCount);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -160,7 +175,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
         mFavoriteButton = (ImageView) view.findViewById(R.id.favoriteButton);
         mUpvoteButton = (ImageView) view.findViewById(R.id.upvoteButton);
         mDownvoteButton = (ImageView) view.findViewById(R.id.downvoteButton);
-        checkVote();
+        checkInitialStatus();
 
         mUpvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -217,6 +232,29 @@ public class CustomJokeDialogFragment extends DialogFragment {
             }
         });
 
+        mFavoriteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (currentlyBusy)
+                    return;
+                else
+                    currentlyBusy = true;
+
+                if (isFavorite) {
+                    mFavoriteButton.setMaxWidth(56);
+                    mFavoriteButton.setImageResource(R.drawable.favoritebutton);
+                    mFavorites.remove(mCurrentJokeID);
+                } else {
+                    mFavoriteButton.setMaxWidth(64);
+                    mFavoriteButton.setImageResource(R.drawable.unfavoritebutton);
+                    mFavorites.put(mCurrentJokeID, mCurrentJoke);
+                }
+
+                String url = buildFavoritesURL();
+                Log.e("", url);
+                new EditFavorite().execute(new String[]{url});
+            }
+        });
+
         return builder.create();
     }
 
@@ -230,6 +268,22 @@ public class CustomJokeDialogFragment extends DialogFragment {
             mJokeSetupTextView.setText(joke.getJokeSetup());
             mJokePunchlineTextView.setText(joke.getJokePunchline());
         }
+    }
+
+    private String buildFavoritesURL() {
+        StringBuilder sb = new StringBuilder(BASE_URL);
+        sb.append("Favorites.php?user=");
+
+        sb.append(mUsername);
+        sb.append("&jokeID=");
+        sb.append(mCurrentJokeID);
+        sb.append("&favorite=");
+        if (isFavorite)
+            sb.append(0);
+        else
+            sb.append(1);
+
+        return sb.toString();
     }
 
     private String buildURL() {
@@ -266,7 +320,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private void checkVote() {
+    private void checkInitialStatus() {
         if (mUpvotes.contains(mCurrentJokeID)) {
             mVotingStatus = UPVOTED;
             mUpvoteButton.setImageResource(R.drawable.upvote);
@@ -276,6 +330,12 @@ public class CustomJokeDialogFragment extends DialogFragment {
         } else {
             mVotingStatus = NO_VOTE;
         }
+
+        if (mFavorites.keySet().contains(mCurrentJokeID)) {
+            isFavorite = true;
+            mFavoriteButton.setImageResource(R.drawable.unfavoritebutton);
+        } else
+            isFavorite = false;
     }
 
     private class EditVote extends AsyncTask<String, Void, String> {
@@ -298,8 +358,120 @@ public class CustomJokeDialogFragment extends DialogFragment {
                     }
 
                 } catch (Exception e) {
-                    System.out.println("SubmitJokeTask failed");
-                    response = "Unable to submit joke, Reason: "
+                    response = "Unable to update vote, Reason: "
+                            + e.getMessage();
+                } finally {
+                    if (urlConnection != null)
+                        urlConnection.disconnect();
+                }
+            }
+            return response;
+        }
+
+
+        /**
+         * It checks to see if there was a problem with the URL(Network) which is when an
+         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
+         * If not, it displays the exception.
+         *
+         * @param result
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+                String status = (String) jsonObject.get("result");
+                //enable buttons.
+                if (status.equals("success")) {
+                    if (mAction.equals("Upvote")) {
+                        if (mVotingStatus == NO_VOTE)
+                            mVotingStatus = UPVOTED;
+                        else if (mVotingStatus == UPVOTED)
+                            mVotingStatus = NO_VOTE;
+                        else //Downvoted.
+                            mVotingStatus = UPVOTED;
+                    } else {
+                        if (mVotingStatus == NO_VOTE)
+                            mVotingStatus = DOWNVOTED;
+                        else if (mVotingStatus == UPVOTED)
+                            mVotingStatus = DOWNVOTED;
+                        else //Downvoted.
+                            mVotingStatus = NO_VOTE;
+                    }
+
+                    /**Toast.makeText(getActivity().getApplicationContext(), "Successfully updated: " + mCurrentJoke.getJokeTitle()
+                            , Toast.LENGTH_LONG)
+                            .show(); **/
+                    ((JokesPage) getActivity()).refreshPage();
+                } else {
+                    resetVote();
+
+                    Toast.makeText(getActivity().getApplicationContext(), "Failed to update: " + mCurrentJoke.getJokeTitle()
+                                    + jsonObject.get("error")
+                            , Toast.LENGTH_LONG)
+                            .show();
+                }
+            } catch (JSONException e) {
+                resetVote();
+
+                Toast.makeText(getActivity().getApplicationContext(), "Please check your internet connection."
+                        , Toast.LENGTH_LONG).show();
+            }
+            currentlyBusy = false;
+        }
+    }
+
+    private void resetVote() {
+        if (mAction.equals("Upvote")) {
+            if (mVotingStatus == NO_VOTE) {
+                mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                mUpvotes.remove(mCurrentJokeID);
+            } else if (mVotingStatus == UPVOTED) {
+                mUpvoteButton.setImageResource(R.drawable.upvote);
+                mDownvoteButton.setImageResource(R.drawable.downvote);
+                mUpvotes.add(mCurrentJokeID);
+            } else { //Downvoted.
+                mDownvoteButton.setImageResource(R.drawable.downvote);
+                mDownvotes.add(mCurrentJokeID);
+                mUpvotes.remove(mCurrentJokeID);
+            }
+        } else {
+            if (mVotingStatus == NO_VOTE) {
+                mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                mDownvotes.remove(mCurrentJokeID);
+            } else if (mVotingStatus == UPVOTED) {
+                mUpvoteButton.setImageResource(R.drawable.upvote);
+                mDownvoteButton.setImageResource(R.drawable.downvote);
+                mDownvotes.remove(mCurrentJokeID);
+                mUpvotes.add(mCurrentJokeID);
+            } else { //Downvoted.
+                mDownvoteButton.setImageResource(R.drawable.neutraldown);
+                mDownvotes.add(mCurrentJokeID);
+            }
+        }
+    }
+
+    private class EditFavorite extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            String response = "";
+            HttpURLConnection urlConnection = null;
+            for (String url : urls) {
+                try {
+                    URL urlObject = new URL(url);
+                    urlConnection = (HttpURLConnection) urlObject.openConnection();
+
+                    InputStream content = urlConnection.getInputStream();
+
+                    BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                    String s = "";
+                    while ((s = buffer.readLine()) != null) {
+                        response += s;
+                    }
+
+                } catch (Exception e) {
+                    response = "Unable to update favorites, Reason: "
                             + e.getMessage();
                 } finally {
                     if (urlConnection != null)
@@ -325,63 +497,34 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 String status = (String) jsonObject.get("result");
                 //enable buttons.
                 if (status.equals("success")) {
-                    if (mAction.equals("Upvote")) {
-                        if (mVotingStatus == NO_VOTE)
-                            mVotingStatus = UPVOTED;
-                        else if (mVotingStatus == UPVOTED)
-                            mVotingStatus = NO_VOTE;
-                        else //Downvoted.
-                            mVotingStatus = UPVOTED;
-                    } else {
-                        if (mVotingStatus == NO_VOTE)
-                            mVotingStatus = DOWNVOTED;
-                        else if (mVotingStatus == UPVOTED)
-                            mVotingStatus = DOWNVOTED;
-                        else //Downvoted.
-                            mVotingStatus = NO_VOTE;
-                    }
-
-                    Toast.makeText(getActivity().getApplicationContext(), mAction + "d: " + mCurrentJoke.getJokeTitle()
+                    /**Toast.makeText(getActivity().getApplicationContext(), "Successfully updated: " + mCurrentJoke.getJokeTitle()
                             , Toast.LENGTH_LONG)
-                            .show();
+                            .show();**/
+
+                    if (isFavorite)
+                        isFavorite = false;
+                    else
+                        isFavorite = true;
+
                     ((JokesPage) getActivity()).refreshPage();
                 } else {
-
-                    if (mAction.equals("upvote")) {
-                        if (mVotingStatus == NO_VOTE) {
-                            mDownvoteButton.setImageResource(R.drawable.neutraldown);
-                            mUpvotes.remove(mCurrentJokeID);
-                        } else if (mVotingStatus == UPVOTED) {
-                            mUpvoteButton.setImageResource(R.drawable.upvote);
-                            mDownvoteButton.setImageResource(R.drawable.downvote);
-                            mUpvotes.add(mCurrentJokeID);
-                        } else { //Downvoted.
-                            mDownvoteButton.setImageResource(R.drawable.downvote);
-                            mDownvotes.add(mCurrentJokeID);
-                            mUpvotes.remove(mCurrentJokeID);
-                        }
+                    if (isFavorite) {
+                        mFavoriteButton.setMaxWidth(64);
+                        mFavoriteButton.setImageResource(R.drawable.unfavoritebutton);
+                        mFavorites.put(mCurrentJokeID, mCurrentJoke);
                     } else {
-                        if (mVotingStatus == NO_VOTE) {
-                            mDownvoteButton.setImageResource(R.drawable.neutraldown);
-                            mDownvotes.remove(mCurrentJokeID);
-                        } else if (mVotingStatus == UPVOTED) {
-                            mUpvoteButton.setImageResource(R.drawable.upvote);
-                            mDownvoteButton.setImageResource(R.drawable.downvote);
-                            mDownvotes.remove(mCurrentJokeID);
-                            mUpvotes.add(mCurrentJokeID);
-                        } else { //Downvoted.
-                            mDownvoteButton.setImageResource(R.drawable.neutraldown);
-                            mDownvotes.add(mCurrentJokeID);
-                        }
+                        mFavoriteButton.setMaxWidth(56);
+                        mFavoriteButton.setImageResource(R.drawable.favoritebutton);
+                        mFavorites.remove(mCurrentJokeID);
                     }
-                    Toast.makeText(getActivity().getApplicationContext(), "Failed to " + mAction + ": " + mCurrentJoke.getJokeTitle()
+                    Toast.makeText(getActivity().getApplicationContext(), "Failed to update: " + mCurrentJoke.getJokeTitle()
                                     + jsonObject.get("error")
                             , Toast.LENGTH_LONG)
                             .show();
                 }
             } catch (JSONException e) {
-                Toast.makeText(getActivity().getApplicationContext(), "Something wrong with the data" +
-                        e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Please check your internet connection."
+                        , Toast.LENGTH_LONG).show();
             }
             currentlyBusy = false;
         }

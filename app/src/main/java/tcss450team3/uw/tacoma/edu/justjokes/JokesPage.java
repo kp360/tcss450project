@@ -35,8 +35,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import android.widget.EditText;
@@ -58,7 +60,7 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
     ViewPager mViewPager;
 
-    private List<Joke> mFavoriteJokes;
+    private Map<Integer, Joke> mFavoriteJokes;
     private Set<Integer> mUpvoted;
     private Set<Integer> mDownvoted;
     private String mUsername;
@@ -113,7 +115,7 @@ Log.e("tag",  "luanchign.");
             }
         }
 
-        mFavoriteJokes = new ArrayList<Joke>();
+        mFavoriteJokes = new HashMap<Integer, Joke>();
         Joke.parseCourseJSON(getIntent().getStringExtra("favorites"), mFavoriteJokes);
 
         mUsername = getIntent().getStringExtra("username");
@@ -125,7 +127,7 @@ Log.e("tag",  "luanchign.");
         int numPagesOfJokes = getIntent().getIntExtra("numPages", 0);
         args.putInt("numPages", numPagesOfJokes);
         args.putString("purpose", "jokeViewer");
-        args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
+        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
         args.putSerializable("upvotes", (Serializable) mUpvoted);
         args.putSerializable("downvotes", (Serializable) mDownvoted);
         jokeFragment.setArguments(args);
@@ -134,7 +136,7 @@ Log.e("tag",  "luanchign.");
         JokeFragment highScoresFragment = new JokeFragment();
         args = new Bundle();
         args.putString("purpose", "highScores");
-        args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
+        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
         args.putSerializable("upvotes", (Serializable) mUpvoted);
         args.putSerializable("downvotes", (Serializable) mDownvoted);
         highScoresFragment.setArguments(args);
@@ -143,7 +145,7 @@ Log.e("tag",  "luanchign.");
         JokeFragment favoritesFragment = new JokeFragment();
         args = new Bundle();
         args.putString("purpose", "favorites");
-        args.putSerializable("favoritesList", (Serializable) mFavoriteJokes);
+        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
         args.putSerializable("upvotes", (Serializable) mUpvoted);
         args.putSerializable("downvotes", (Serializable) mDownvoted);
         favoritesFragment.setArguments(args);
