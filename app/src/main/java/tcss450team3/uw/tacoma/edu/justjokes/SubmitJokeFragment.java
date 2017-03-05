@@ -3,6 +3,7 @@ package tcss450team3.uw.tacoma.edu.justjokes;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,6 +14,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 
 
@@ -27,6 +36,9 @@ import java.net.URLEncoder;
  * 3/1/17
  */
 public class SubmitJokeFragment extends Fragment {
+    private static final String JOKE_SUB_URL
+            = "http://cssgate.insttech.washington.edu/~_450bteam3/submitJoke.php?";
+
     private EditText mJokeTitleEdit;
     private EditText mJokeSetupEdit;
     private EditText mJokePunchlineEdit;
@@ -118,18 +130,105 @@ public class SubmitJokeFragment extends Fragment {
     }
 
     public void submitJoke(String emailMessage, View v) {
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent.setType("message/rfc822");
+        new SubmitJokeTask().execute(buildJokeURL(v));
+    }
 
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"JustJokesReview@gmail.com"});
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Joke Submission: " + mJokeTitleEdit.getText().toString());
-        emailIntent.putExtra(Intent.EXTRA_TEXT, emailMessage);
+    private String buildJokeURL(View v) {
+
+        StringBuilder sb = new StringBuilder(JOKE_SUB_URL);
 
         try {
-            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-        } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(getActivity().getApplicationContext(),
-                    "There is no email client installed.", Toast.LENGTH_SHORT).show();
+            String courseId = mJokeTitleEdit.getText().toString();
+            sb.append("jokeTitle=");
+            sb.append(courseId);
+
+
+            String courseShortDesc = mJokeSetupEdit.getText().toString();
+            sb.append("&jokeSetup=");
+            sb.append(URLEncoder.encode(courseShortDesc, "UTF-8"));
+
+
+            String courseLongDesc = mJokePunchlineEdit.getText().toString();
+            sb.append("&jokePunchline=");
+            sb.append(URLEncoder.encode(courseLongDesc, "UTF-8"));
+
+            sb.append("&user=");
+            sb.append(URLEncoder.encode(mUsername, "UTF-8"));
+
+            Log.i("SubmitJokeURL", sb.toString());
+
+        }
+        catch(Exception e) {
+            Toast.makeText(v.getContext(), "Something wrong with the url" + e.getMessage(), Toast.LENGTH_LONG)
+                    .show();
+        }
+        return sb.toString();
+    }
+
+    private class SubmitJokeTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            String response = "";
+            HttpURLConnection urlConnection = null;
+            for (String url : urls) {
+                try {
+                    System.out.println("SubmitJokeTask trying");
+                    URL urlObject = new URL(url);
+                    urlConnection = (HttpURLConnection) urlObject.openConnection();
+
+                    InputStream content = urlConnection.getInputStream();
+
+                    BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                    String s = "";
+                    while ((s = buffer.readLine()) != null) {
+                        response += s;
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("SubmitJokeTask failed");
+                    response = "Unable to submit joke, Reason: "
+                            + e.getMessage();
+                } finally {
+                    if (urlConnection != null)
+                        urlConnection.disconnect();
+                }
+            }
+            return response;
+        }
+
+
+        /**
+         * It checks to see if there was a problem with the URL(Network) which is when an
+         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
+         * If not, it displays the exception.
+         *
+         * @param result
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            // Something wrong with the network or the URL.
+            try {
+                JSONObject jsonObject = new JSONObject(result);
+                String status = (String) jsonObject.get("result");
+                if (status.equals("success")) {
+                    mJokeTitleEdit.setText("");
+                    mJokeSetupEdit.setText("");
+                    mJokePunchlineEdit.setText("");
+
+                    Toast.makeText(getActivity().getApplicationContext(), "Joke successfully submitted for review!"
+                            , Toast.LENGTH_LONG)
+                            .show();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Failed to add: "
+                                    + jsonObject.get("error")
+                            , Toast.LENGTH_LONG)
+                            .show();
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getActivity().getApplicationContext(), "Something wrong with the data" +
+                        e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
