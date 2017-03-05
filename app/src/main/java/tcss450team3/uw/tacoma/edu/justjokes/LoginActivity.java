@@ -1,5 +1,6 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -21,6 +22,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+
+import static java.security.AccessController.getContext;
 
 /**
  *  The purpose of this activity is for the user to log in to an existing
@@ -46,8 +49,6 @@ public class LoginActivity extends AppCompatActivity {
 
     /** The EditText where users type their password. */
     private EditText mUserPasswordEditText;
-
-    private SharedPreferences mSharedPreferences;
 
 
     /**
@@ -304,7 +305,8 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "User successfully added!"
                             , Toast.LENGTH_LONG)
                             .show();
-                    mSharedPreferences
+                    SharedPreferences sharedPreferences = LoginActivity.this.getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
+                    sharedPreferences
                             .edit()
                             .putInt(getString(R.string.PAGE_NUMBER), 1)
                             .commit();

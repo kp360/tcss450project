@@ -111,23 +111,7 @@ public class JokeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSharedPreferences = getContext().getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
 
-        if(mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1) == 1) {
-            mCurrentPageNum = 1;
-            System.out.printf("Sharedprefs stored: %d\n", mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1));
-        } else {
-            mCurrentPageNum = mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1);
-            changePage(mCurrentPageNum);
-            System.out.printf("Sharedprefs stored: %d mCurrentPageNum is: %d else loop\n", mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1), mCurrentPageNum);
-        }
-
-//        mSharedPreferences
-//                .edit()
-//                .putInt(getString(R.string.PAGE_NUMBER), mCurrentPageNum)
-//                .commit();
-
-        Log.e("tag", "oncreate");
         Bundle args = getArguments();
         if (args != null) {
             mNumPages = args.getInt("numPages");
@@ -173,18 +157,20 @@ public class JokeFragment extends Fragment {
 
         switch (mPurpose) {
             case "jokeViewer":
-                new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
-
                 final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
                 final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
                 final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
 
+                mSharedPreferences = getContext().getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
+                mCurrentPageNum =  mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1);
+                dropDownList.setSelection(mCurrentPageNum - 1);
+
                 //Decrements the current page number variable and loads the jokes from that page.
                 //Enables/disables buttons accordingly.
                 prevButton.setOnClickListener(new Button.OnClickListener() {
                     public void onClick(View v) {
-                        changePage(mCurrentPageNum-1);
+                        dropDownList.setSelection(mCurrentPageNum - 2); //(mCurrentPageNum - 1) - 1
                     }
                 });
 
@@ -192,7 +178,7 @@ public class JokeFragment extends Fragment {
                 //Enables/disables buttons accordingly.
                 nextButton.setOnClickListener(new Button.OnClickListener() {
                     public void onClick(View v) {
-                        changePage(mCurrentPageNum+1);
+                        dropDownList.setSelection(mCurrentPageNum); //(mCurrentPageNum + 1) - 1
                     }
                 });
 
@@ -203,7 +189,6 @@ public class JokeFragment extends Fragment {
                     nextButton.setEnabled(false);
 
                 mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
-                updatePageNumTextView();
                 break;
             case "highScores":
                 new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
@@ -219,20 +204,28 @@ public class JokeFragment extends Fragment {
                 new DownloadJokesTask().execute(BASE_URL + "getJokesToReview.php");
                 break;
         }
-
         return view;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i("s", "pause");
+        if (mPurpose.equals("jokeViewer")) {
+            SharedPreferences sharedPreferences =
+                    getContext().getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
+            sharedPreferences.edit().putInt(getString(R.string.PAGE_NUMBER), mCurrentPageNum)
+                    .commit();
+        }
+    }
+
     public void changePage(int newPage) {
-        if (mCurrentPageNum == newPage) { return; }
+        //if (mCurrentPageNum == newPage) { return; }
 
         final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
         final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
         mCurrentPageNum = newPage;
-        mSharedPreferences
-                .edit()
-                .putInt(getString(R.string.PAGE_NUMBER), mCurrentPageNum)
-                .commit();
+
         if (mCurrentPageNum == mNumPages)
             nextButton.setEnabled(false);
         else
@@ -243,13 +236,6 @@ public class JokeFragment extends Fragment {
             prevButton.setEnabled(true);
 
         new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
-    }
-
-    /**
-     * This method is used to update the TextView that shows the current page number.
-     */
-    private void updatePageNumTextView() {
-        //mPageNumTextView.setText(PAGE_TEXT + mCurrentPageNum + " ");
     }
 
     /**
