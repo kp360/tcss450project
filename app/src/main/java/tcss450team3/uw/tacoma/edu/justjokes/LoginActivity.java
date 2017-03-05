@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -50,6 +52,10 @@ public class LoginActivity extends AppCompatActivity {
     /** The EditText where users type their password. */
     private EditText mUserPasswordEditText;
 
+    private CheckBox mRememberMeCheckBox;
+
+    private SharedPreferences mSharedPreferences;
+
 
     /**
      * Method called when this Activity is created.
@@ -66,11 +72,36 @@ public class LoginActivity extends AppCompatActivity {
 
         mUserUsernameEditText = (EditText) findViewById(R.id.usernameEditText);
         mUserPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
+        mRememberMeCheckBox = (CheckBox) findViewById(R.id.saveLoginCheckBox);
+
+        mSharedPreferences = getSharedPreferences(getString(R.string.REMEMBER_ME), Context.MODE_PRIVATE);
+
+        if (mSharedPreferences.getBoolean(getString(R.string.REMEMBERED), false)) {
+            mRememberMeCheckBox.setChecked(true);
+            mUserUsernameEditText.setText(mSharedPreferences.getString(getString(R.string.RM_USERNAME), ""), TextView.BufferType.EDITABLE);
+            mUserPasswordEditText.setText(mSharedPreferences.getString(getString(R.string.RM_PASSWORD), ""), TextView.BufferType.EDITABLE);
+        }
+
+        mRememberMeCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mRememberMeCheckBox.isChecked()) {
+                    storeLoginInfo();
+                } else {
+                    removeLoginInfo();
+                }
+            }
+        });
 
         Button userLoginButton = (Button) findViewById(R.id.loginButton);
         userLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mRememberMeCheckBox.isChecked()) {
+                    storeLoginInfo();
+                } else {
+                    removeLoginInfo();
+                }
                 String url = buildURL(v, LOGIN_URL);
                 login(url);
             }
@@ -80,6 +111,11 @@ public class LoginActivity extends AppCompatActivity {
         userRegisButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mRememberMeCheckBox.isChecked()) {
+                    storeLoginInfo();
+                } else {
+                    removeLoginInfo();
+                }
                 String url = buildURL(v, REGIS_URL);
                 register(url);
             }
@@ -243,6 +279,38 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // TODO: Javadoc
+    private void storeLoginInfo() {
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_USERNAME), mUserUsernameEditText.getText().toString())
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_PASSWORD), mUserPasswordEditText.getText().toString())
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putBoolean(getString(R.string.REMEMBERED), true)
+                .commit();
+    }
+
+    // TODO: Javadoc
+    private void removeLoginInfo() {
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_USERNAME), "")
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_PASSWORD), "")
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putBoolean(getString(R.string.REMEMBERED), false)
+                .commit();
+    }
+
     /**
      * This inner class is used to connect to the database and check if the user entered
      * username and password exist in our database, if they don't exist they're registered
@@ -305,11 +373,6 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "User successfully added!"
                             , Toast.LENGTH_LONG)
                             .show();
-                    SharedPreferences sharedPreferences = LoginActivity.this.getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
-                    sharedPreferences
-                            .edit()
-                            .putInt(getString(R.string.PAGE_NUMBER), 1)
-                            .commit();
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to add: "
                                     + jsonObject.get("error")
