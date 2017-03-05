@@ -15,4 +15,6 @@
     <string name="sub_joke_setup">Enter the Joke Setup</string>
     <string name="sub_joke_punchline">Enter the Joke Punchline</string>
     <string name="sub_joke_button">Submit Joke</string>
+    <string name="PAGE_PREFS">tcss450team3.uw.tacoma.edu.justjokes.PREFS</string>
+    <string name="PAGE_NUMBER">Stored Page Num</string>
 </resources>

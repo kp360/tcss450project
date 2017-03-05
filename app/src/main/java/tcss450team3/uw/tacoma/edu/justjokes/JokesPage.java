@@ -1,6 +1,7 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;

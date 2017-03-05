@@ -1,6 +1,7 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -45,6 +46,9 @@ public class LoginActivity extends AppCompatActivity {
 
     /** The EditText where users type their password. */
     private EditText mUserPasswordEditText;
+
+    private SharedPreferences mSharedPreferences;
+
 
     /**
      * Method called when this Activity is created.
@@ -300,6 +304,10 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "User successfully added!"
                             , Toast.LENGTH_LONG)
                             .show();
+                    mSharedPreferences
+                            .edit()
+                            .putInt(getString(R.string.PAGE_NUMBER), 1)
+                            .commit();
                 } else {
                     Toast.makeText(getApplicationContext(), "Failed to add: "
                                     + jsonObject.get("error")

@@ -1,6 +1,7 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -60,6 +61,8 @@ public class JokeFragment extends Fragment {
      * previous (prev) and next buttons are enabled/disabled at the proper times. */
     private int mCurrentPageNum;
 
+    private SharedPreferences mSharedPreferences;
+
     private String mPurpose;
 
     private Map<Integer, Joke> mFavorites;
@@ -108,7 +111,22 @@ public class JokeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCurrentPageNum = 1;
+        mSharedPreferences = getContext().getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
+
+        if(mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1) == 1) {
+            mCurrentPageNum = 1;
+            System.out.printf("Sharedprefs stored: %d\n", mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1));
+        } else {
+            mCurrentPageNum = mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1);
+            changePage(mCurrentPageNum);
+            System.out.printf("Sharedprefs stored: %d mCurrentPageNum is: %d else loop\n", mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1), mCurrentPageNum);
+        }
+
+//        mSharedPreferences
+//                .edit()
+//                .putInt(getString(R.string.PAGE_NUMBER), mCurrentPageNum)
+//                .commit();
+
         Log.e("tag", "oncreate");
         Bundle args = getArguments();
         if (args != null) {
@@ -166,17 +184,7 @@ public class JokeFragment extends Fragment {
                 //Enables/disables buttons accordingly.
                 prevButton.setOnClickListener(new Button.OnClickListener() {
                     public void onClick(View v) {
-                        mCurrentPageNum--;
-                        if (mCurrentPageNum == 1)
-                            prevButton.setEnabled(false);
-
-                        if (!nextButton.isEnabled())
-                            nextButton.setEnabled(true);
-
-                        dropDownList.setSelection(mCurrentPageNum - 1);
-
-                        new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
-                        updatePageNumTextView();
+                        changePage(mCurrentPageNum-1);
                     }
                 });
 
@@ -184,17 +192,7 @@ public class JokeFragment extends Fragment {
                 //Enables/disables buttons accordingly.
                 nextButton.setOnClickListener(new Button.OnClickListener() {
                     public void onClick(View v) {
-                        mCurrentPageNum++;
-                        if (mCurrentPageNum == mNumPages)
-                            nextButton.setEnabled(false);
-
-                        if (!prevButton.isEnabled())
-                            prevButton.setEnabled(true);
-
-                        dropDownList.setSelection(mCurrentPageNum - 1);
-
-                        new DownloadJokesTask().execute(BASE_URL + JOKES_URL + mCurrentPageNum);
-                        updatePageNumTextView();
+                        changePage(mCurrentPageNum+1);
                     }
                 });
 
@@ -226,12 +224,15 @@ public class JokeFragment extends Fragment {
     }
 
     public void changePage(int newPage) {
-        if (mCurrentPageNum == newPage)
-            return;
+        if (mCurrentPageNum == newPage) { return; }
 
         final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
         final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
         mCurrentPageNum = newPage;
+        mSharedPreferences
+                .edit()
+                .putInt(getString(R.string.PAGE_NUMBER), mCurrentPageNum)
+                .commit();
         if (mCurrentPageNum == mNumPages)
             nextButton.setEnabled(false);
         else
