@@ -82,7 +82,11 @@ public class LoginTest {
                 .perform(typeText("a"));
         onView(withId(R.id.registerButton))
                 .perform(click());
+        try{
+            Thread.sleep(500);
+        } catch (InterruptedException e){
 
+        }
         onView(withText("Failed to register: Please enter a valid password (longer than 5" +
                 " characters)."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
