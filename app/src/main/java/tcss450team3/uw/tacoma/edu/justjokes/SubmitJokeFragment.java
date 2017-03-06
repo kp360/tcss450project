@@ -33,7 +33,7 @@ import java.net.URLEncoder;
  * @author Vlad
  * @author Kyle
  *
- * 3/1/17
+ * 3/6/17
  */
 public class SubmitJokeFragment extends Fragment {
     private static final String JOKE_SUB_URL

@@ -80,7 +80,7 @@ public class JokeTest {
     }
 
     /**
-     * TODO: Finish Javadoc
+     * Tests if the number of upvotes is incremented.
      */
     @Test
     public void testIncrementNumUpvotes() {
@@ -89,6 +89,11 @@ public class JokeTest {
         testJoke.incrementNumUpvotes();
         assertEquals(testJoke.getmNumUpvotes(), 2);
     }
+
+    /**
+     * Tests if the number of upvotes is decremented,
+     * upvotes is more than 0.
+     */
     @Test
     public void testDecrementNumUpvotesAboveZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -96,6 +101,11 @@ public class JokeTest {
         testJoke.decrementNumUpvotes();
         assertEquals(testJoke.getmNumUpvotes(), 0);
     }
+
+    /**
+     * Tests if the number of upvotes is decremented,
+     * if number of upvotes is zero, the number of upvotes remains zero.
+     */
     @Test
     public void testDecrementNumUpvotesAtZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -103,6 +113,11 @@ public class JokeTest {
         testJoke.decrementNumUpvotes();
         assertEquals(testJoke.getmNumUpvotes(), 0);
     }
+
+    /**
+     * Tests if the number of upvotes is decremented,
+     * if number of upvotes is below zero, the number of upvotes is set to zero.
+     */
     @Test
     public void testDecrementNumUpvotesBelowZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -110,6 +125,9 @@ public class JokeTest {
         testJoke.decrementNumUpvotes();
         assertEquals(testJoke.getmNumUpvotes(), 0);
     }
+    /**
+     * Tests if the number of downvotes is incremented.
+     */
     @Test
     public void testIncrementNumDownvotes() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -117,6 +135,10 @@ public class JokeTest {
         testJoke.incrementNumDownvotes();
         assertEquals(testJoke.getmNumDownvotes(), 2);
     }
+    /**
+     * Tests if the number of downvotes is decremented,
+     * downvotes is more than 0.
+     */
     @Test
     public void testDecrementNumDownvotesAboveZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -124,6 +146,10 @@ public class JokeTest {
         testJoke.decrementNumDownvotes();
         assertEquals(testJoke.getmNumDownvotes(), 0);
     }
+    /**
+     * Tests if the number of downvotes is decremented,
+     * if number of downvotes is zero, the number of downvotes remains zero.
+     */
     @Test
     public void testDecrementNumDownvotesAtZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -131,6 +157,10 @@ public class JokeTest {
         testJoke.decrementNumDownvotes();
         assertEquals(testJoke.getmNumDownvotes(), 0);
     }
+    /**
+     * Tests if the number of downvotes is decremented,
+     * if number of downvotes is below zero, the number of downvotes is set to zero.
+     */
     @Test
     public void testDecrementNumDownvotesBelowZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -138,12 +168,24 @@ public class JokeTest {
         testJoke.decrementNumDownvotes();
         assertEquals(testJoke.getmNumDownvotes(), 0);
     }
+
+    /**
+     * Tests compare to method,
+     * if both objects compared are the same or have the same name,
+     * result is 0.
+     */
     @Test
     public void testCompareToSameJoke() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 0, 0);
         assertEquals(testJoke.compareTo(testJoke), 0);
     }
+
+    /**
+     * Tests compare to method,
+     * if this joke has a greater name than the other joke,
+     * result is positive.
+     */
     @Test
     public void testCompareToSameVotesGreaterName() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -152,6 +194,12 @@ public class JokeTest {
                 "You better work", 0, 0);
         assertEquals(testJoke.compareTo(testJoke2), 1);
     }
+
+    /**
+     * Tests compare to method,
+     * if this joke has a lesser name than the other joke,
+     * result is negative
+     */
     @Test
     public void testCompareToSameVotesLesserName() {
         Joke testJoke = new Joke(1, "Test Joke1", "What did the Test say to the Joke?",
@@ -160,6 +208,12 @@ public class JokeTest {
                 "You better work", 0, 0);
         assertEquals(testJoke.compareTo(testJoke2), -1);
     }
+
+    /**
+     * Tests compare to method,
+     * if this joke has a greater upvote count,
+     * result is positive.
+     */
     @Test
     public void testCompareToGreater() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -168,6 +222,12 @@ public class JokeTest {
                 "You better work", 3, 0);
         assertEquals(testJoke.compareTo(testJoke2), 2);
     }
+
+    /**
+     * Tests compare to method,
+     * if this joke has a lower upvote count,
+     * result is negative.
+     */
     @Test
     public void testCompareToLess() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -176,6 +236,12 @@ public class JokeTest {
                 "You better work", 5, 0);
         assertEquals(testJoke.compareTo(testJoke2), -2);
     }
+
+    /**
+     * Tests compare to method,
+     * if this joke has a higher downvote count and the same upvotes,
+     * result is negative.
+     */
     @Test
     public void testCompareToMoreDownvotes() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -184,6 +250,12 @@ public class JokeTest {
                 "You better work", 5, 2);
         assertEquals(testJoke.compareTo(testJoke2), -1);
     }
+
+    /**
+     * Tests compare to method,
+     * if this joke has a lower downvote count and the same upvotes,
+     * result is positive.
+     */
     @Test
     public void testCompareToLessDownvotes() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",

@@ -28,6 +28,7 @@ import java.util.List;
 
 public class PageDB {
 
+    private static final String COURSE_TABLE = "Course";
     public static final int DB_VERSION = 1;
     public static final String DB_NAME = "Pages.db";
 
@@ -55,6 +56,12 @@ public class PageDB {
         return rowId != -1;
     }
 
+    /**
+     * Updates the course into the local sqlite table. Returns true if successful, false otherwise.
+     * @param username
+     * @param pageNum
+     * @return true or false
+     */
     public boolean updateCourses(String username, int pageNum) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("username", username);
@@ -68,7 +75,7 @@ public class PageDB {
         mSQLiteDatabase.close();
     }
 
-    private static final String COURSE_TABLE = "Course";
+
 
     /**
      * Returns the list of courses from the local Course table.

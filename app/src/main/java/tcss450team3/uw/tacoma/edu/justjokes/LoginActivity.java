@@ -52,8 +52,10 @@ public class LoginActivity extends AppCompatActivity {
     /** The EditText where users type their password. */
     private EditText mUserPasswordEditText;
 
+    /** The CheckBox to trigger remember me. */
     private CheckBox mRememberMeCheckBox;
 
+    /** The SharedPreferences object storing username/password */
     private SharedPreferences mSharedPreferences;
 
 
@@ -183,7 +185,10 @@ public class LoginActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    // TODO: Javadoc
+    /**
+     * Helper method used to store the entered username and password
+     * when the user checks the "Remember Me" box.
+     */
     private void storeLoginInfo() {
         mSharedPreferences
                 .edit()
@@ -199,7 +204,10 @@ public class LoginActivity extends AppCompatActivity {
                 .commit();
     }
 
-    // TODO: Javadoc
+    /**
+     * Helper method used to store the entered username and password
+     * when the user unchecks the "Remember Me" box.
+     */
     private void removeLoginInfo() {
         mSharedPreferences
                 .edit()

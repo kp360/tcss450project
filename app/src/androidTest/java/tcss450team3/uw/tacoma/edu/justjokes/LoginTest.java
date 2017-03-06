@@ -24,6 +24,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 /**
+ * This class is designed to run espresso UI tests on our login form.
+ * Checks if user login validation works properly as well as user
+ * registration validation and "Remember Me" SharedPreferences.
+ *
+ * Tests are designed to run in the order listed in this class.
+ *
  * Created by Kyle on 3/5/2017.
  */
 
@@ -32,10 +38,20 @@ import static org.hamcrest.core.IsNot.not;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class LoginTest {
 
+    /**
+     * A JUnit {@link Rule @Rule} to launch your activity under test.
+     * Rules are interceptors which are executed for each test method and will run before
+     * any of your setup code in the {@link @Before} method.
+     * <p>
+     * {@link ActivityTestRule} will create and launch of the activity for you and also expose
+     * the activity under test. To get a reference to the activity you can use
+     * the {@link ActivityTestRule#getActivity()} method.
+     */
     @Rule
     public ActivityTestRule<LoginActivity> mActivityRule = new ActivityTestRule<>(
             LoginActivity.class);
 
+    /** Method tests user login with a valid username but incorrect password. */
     @Test
     public void testLoginInvalidPasswordIncorrect() {
         // Type text and then press the button.
@@ -49,6 +65,8 @@ public class LoginTest {
         onView(withText("Failed to login: Incorrect password."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+
+    /** Method tests user login with a valid username but password that is too short. */
     @Test
     public void testLoginInvalidPasswordTooShort() {
         try{
@@ -67,6 +85,7 @@ public class LoginTest {
         onView(withText("Failed to login: Please enter a valid password (longer than five characters)."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+    /** Method tests user login with an invalid username but a valid password. */
     @Test
     public void testLoginInvalidUsername() {
         try{
@@ -85,6 +104,12 @@ public class LoginTest {
         onView(withText("Failed to login: Incorrect username."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+
+    /**
+     * Method tests the remember me function, user signs in and checks "Remember Me",
+     * then signs in, data is stored in SharedPreferences.
+     */
+
     @Test
     public void testLoginRememberMeCheck() {
         try{
@@ -105,6 +130,8 @@ public class LoginTest {
         onView(withText("Welcome back, RememberMeTestAccount!"))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+
+    /** Method tests the rememeber me function, signs in without typing info.*/
     @Test
     public void testLoginRememberMeLogin() {
         try{
@@ -119,6 +146,12 @@ public class LoginTest {
         onView(withText("Welcome back, RememberMeTestAccount!"))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+
+    /**
+     * Method tests the remember me function, unchecks remember me and signs in,
+     * data is removed from SharedPreferences.
+     */
+
     @Test
     public void testLoginRememberMeUncheck() {
         try{
@@ -135,6 +168,7 @@ public class LoginTest {
         onView(withText("Welcome back, RememberMeTestAccount!"))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+    /** Method tests user login with valid username and password. */
     @Test
     public void testLoginValidInput() {
         try{
@@ -153,6 +187,7 @@ public class LoginTest {
         onView(withText("Welcome back, RememberMeTestAccount!"))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+    /** Method tests user registration with valid username and password that is too short. */
     @Test
     public void testRegisterInvalidPassword() {
         try{
@@ -171,6 +206,7 @@ public class LoginTest {
         onView(withText("Failed to register: Please enter a valid password (longer than five characters)."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+    /** Method tests user registration with a valid password but invalid username. */
     @Test
     public void testRegisterInvalidUsername() {
         try{
@@ -189,6 +225,7 @@ public class LoginTest {
         onView(withText("Failed to register: Please enter a valid username (longer than one character)."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
+    /** Method tests user registration with a valid username and password. */
     @Test
     public void testRegisterValidInput() {
         try{

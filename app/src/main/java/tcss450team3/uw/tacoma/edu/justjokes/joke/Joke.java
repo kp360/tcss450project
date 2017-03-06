@@ -107,10 +107,17 @@ public class Joke implements Serializable, Comparable {
         return reason;
     }
 
+    /**
+     * Used to incremement the upvote counter field.
+     */
     public void incrementNumUpvotes() {
         mNumUpvotes += 1;
     }
 
+    /**
+     * Used to decrement the upvote counter field if.
+     * If the upvote count can't be decremented below 0.
+     */
     public void decrementNumUpvotes() {
         if (mNumUpvotes > 0) {
             mNumUpvotes -= 1;
@@ -119,10 +126,17 @@ public class Joke implements Serializable, Comparable {
         }
     }
 
+    /**
+     * Used to incremement the downvote counter field.
+     */
     public void incrementNumDownvotes() {
         mNumDownvotes += 1;
     }
 
+    /**
+     * Used to decrement the downvote counter field if.
+     * If the upvote count can't be decremented below 0.
+     */
     public void decrementNumDownvotes() {
         if (mNumDownvotes > 0) {
             mNumDownvotes -= 1;
@@ -131,50 +145,95 @@ public class Joke implements Serializable, Comparable {
         }
     }
 
+    /**
+     * Getter method for Joke ID field.
+     * @return integer representing the Joke ID
+     */
     public int getJokeID() {
         return mJokeID;
     }
 
+    /**
+     * Getter method for Joke Title field.
+     * @return String containing joke title.
+     */
     public String getJokeTitle() {
         return mJokeTitle;
     }
 
+    /**
+     * Setter method for Joke Title field.
+     */
     public void setJokeTitle(String jokeTitle) {
         this.mJokeTitle = jokeTitle;
     }
 
+    /**
+     * Getter method for Joke Setup field.
+     * @return String containing joke setup.
+     */
     public String getJokeSetup() {
         return mJokeSetup;
     }
 
+    /**
+     * Setter method for Joke Setup field.
+     */
     public void setJokeSetup(String jokeSetup) {
         this.mJokeSetup = jokeSetup;
     }
 
+    /**
+     * Getter method for Joke Punchline field.
+     * @return String containing joke punchline.
+     */
     public String getJokePunchline() {
         return mJokePunchline;
     }
 
+    /**
+     * Setter method for Joke Punchline field.
+     */
     public void setJokePunchline(String jokePunchline) {
         this.mJokePunchline = jokePunchline;
     }
 
+    /**
+     * Getter method for Joke Upvotes field.
+     * @return integer representing the number of upvotes.
+     */
     public int getmNumUpvotes() {
         return mNumUpvotes;
     }
 
+    /**
+     * Setter method for Joke Upvotes field.
+     */
     public void setmNumUpvotes(int mNumUpvotes) {
         this.mNumUpvotes = mNumUpvotes;
     }
 
+    /**
+     * Getter method for Joke Downvotes field.
+     * @return integer representing the number of downvotes.
+     */
     public int getmNumDownvotes() {
         return mNumDownvotes;
     }
 
+    /**
+     * Setter method for Joke Downvotes field.
+     */
     public void setmNumDownvotes(int mNumDownvotes) {
         this.mNumDownvotes = mNumDownvotes;
     }
 
+    /**
+     * Overriden method used by Collections.sort in order to sort jokes by their vote counts.
+     *
+     * @param o the object being compared to this object.
+     * @return integer -1, 0, 1 if less than, same or greater than respectively.
+     */
     @Override
     public int compareTo(Object o) {
         Joke other = (Joke) o;
