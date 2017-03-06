@@ -33,31 +33,31 @@ public class LoginTest {
     public ActivityTestRule<LoginActivity> mActivityRule = new ActivityTestRule<>(
             LoginActivity.class);
 
-//    @Test
-//    public void testRegister() {
-//
-//        Random random = new Random();
-//        //Generate an email address
-//        String account = "Account" + (random.nextInt(400) + 1)
-//                + (random.nextInt(900) + 1) + (random.nextInt(700) + 1)
-//                + (random.nextInt(400) + 1) + (random.nextInt(100) + 1);
-//
-//        // Type text and then press the button.
-//        onView(withId(R.id.usernameEditText))
-//                .perform(typeText(account));
-//        onView(withId(R.id.passwordEditText))
-//                .perform(typeText("111111"));
-//        onView(withId(R.id.registerButton))
-//                .perform(click());
-//
-//        onView(withText("User successfully registered!"))
-//                .inRoot(withDecorView(not(is(
-//                        mActivityRule.getActivity()
-//                                .getWindow()
-//                                .getDecorView()))))
-//                .check(matches(isDisplayed()));
-//
-//    }
+    @Test
+    public void testRegister() {
+
+        Random random = new Random();
+        //Generate an email address
+        String account = "Account" + (random.nextInt(400) + 1)
+                + (random.nextInt(900) + 1) + (random.nextInt(700) + 1)
+                + (random.nextInt(400) + 1) + (random.nextInt(100) + 1);
+
+        // Type text and then press the button.
+        onView(withId(R.id.usernameEditText))
+                .perform(typeText(account));
+        onView(withId(R.id.passwordEditText))
+                .perform(typeText("111111"));
+        onView(withId(R.id.registerButton))
+                .perform(click());
+
+        onView(withText("User successfully registered!"))
+                .inRoot(withDecorView(not(is(
+                        mActivityRule.getActivity()
+                                .getWindow()
+                                .getDecorView()))))
+                .check(matches(isDisplayed()));
+
+    }
 
     @Test
     public void testRegisterInvalidUsername() {
@@ -69,8 +69,7 @@ public class LoginTest {
         onView(withId(R.id.registerButton))
                 .perform(click());
 
-        onView(withText("Failed to register: Please enter a valid username (longer than one" +
-                " character)."))
+        onView(withText("Failed to register: Please enter a valid username (longer than one character)."))
                 .inRoot(withDecorView(not(is(mActivityRule.getActivity().getWindow().getDecorView())))).check(matches(isDisplayed()));
     }
     @Test
