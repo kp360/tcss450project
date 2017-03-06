@@ -76,7 +76,6 @@ public class Joke implements Serializable, Comparable {
             } catch (JSONException e) {
                 reason =  "Unable to parse data, Reason: " + e.getMessage();
             }
-
         }
         return reason;
     }
@@ -113,7 +112,11 @@ public class Joke implements Serializable, Comparable {
     }
 
     public void decrementNumUpvotes() {
-        mNumUpvotes -= 1;
+        if (mNumUpvotes > 0) {
+            mNumUpvotes -= 1;
+        } else {
+            mNumUpvotes = 0;
+        }
     }
 
     public void incrementNumDownvotes() {
@@ -121,7 +124,11 @@ public class Joke implements Serializable, Comparable {
     }
 
     public void decrementNumDownvotes() {
-        mNumDownvotes -= 1;
+        if (mNumDownvotes > 0) {
+            mNumDownvotes -= 1;
+        } else {
+            mNumDownvotes = 0;
+        }
     }
 
     public int getJokeID() {
