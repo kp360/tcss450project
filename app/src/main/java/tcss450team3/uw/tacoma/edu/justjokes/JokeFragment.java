@@ -71,6 +71,12 @@ public class JokeFragment extends Fragment {
 
     private Set<Integer> mDownvoted;
 
+    private String mUsername;
+
+    private PageDB mPageDB;
+
+    private MyJokeRecyclerViewAdapter mAdapter;
+
     /** Auto-generated variable. */
     private static final String ARG_COLUMN_COUNT = "column-count";
 
@@ -116,9 +122,32 @@ public class JokeFragment extends Fragment {
         if (args != null) {
             mNumPages = args.getInt("numPages");
             mPurpose = args.getString("purpose");
+            mUsername = args.getString("username");
             mFavorites = (Map<Integer, Joke>) args.getSerializable("favoritesMap");
             mUpvoted = (Set<Integer>) args.getSerializable("upvotes");
             mDownvoted = (Set<Integer>) args.getSerializable("downvotes");
+        }
+    }
+
+    public void setupJokesPage() {
+        mPageDB = new PageDB(getActivity());
+        mCurrentPageNum = mPageDB.getPage(mUsername);
+        if (mCurrentPageNum == -1) {
+            mCurrentPageNum = 1;
+            mPageDB.insertCourse(mUsername, mCurrentPageNum);
+        }
+
+        final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
+        dropDownList.setSelection(mCurrentPageNum - 1);
+    }
+
+    public void updateElements() {
+        if (mPurpose.equals("jokeViewer")) {
+            mRecyclerView.setAdapter(mAdapter);
+        } else if (mPurpose.equals("highScores"))
+            new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
+        else {
+            updateRecyclerView();
         }
     }
 
@@ -162,8 +191,13 @@ public class JokeFragment extends Fragment {
 
                 final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
 
-                mSharedPreferences = getContext().getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
-                mCurrentPageNum =  mSharedPreferences.getInt(getString(R.string.PAGE_NUMBER),1);
+                mPageDB = new PageDB(getActivity());
+                mCurrentPageNum = mPageDB.getPage(mUsername);
+                if (mCurrentPageNum == -1) {
+                    mCurrentPageNum = 1;
+                    mPageDB.insertCourse(mUsername, mCurrentPageNum);
+                }
+
                 dropDownList.setSelection(mCurrentPageNum - 1);
 
                 //Decrements the current page number variable and loads the jokes from that page.
@@ -199,9 +233,8 @@ public class JokeFragment extends Fragment {
                 args.putSerializable("upvotes", (Serializable) mUpvoted);
                 args.putSerializable("downvotes", (Serializable) mDownvoted);
                 mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(new ArrayList<Joke>(mFavorites.values()), mListener, false, args));
-                break;
+            break;
             default:
-                new DownloadJokesTask().execute(BASE_URL + "getJokesToReview.php");
                 break;
         }
         return view;
@@ -210,18 +243,13 @@ public class JokeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.i("s", "pause");
         if (mPurpose.equals("jokeViewer")) {
-            SharedPreferences sharedPreferences =
-                    getContext().getSharedPreferences(getString(R.string.PAGE_PREFS), Context.MODE_PRIVATE);
-            sharedPreferences.edit().putInt(getString(R.string.PAGE_NUMBER), mCurrentPageNum)
-                    .commit();
+            mPageDB.updateCourses(mUsername, mCurrentPageNum);
         }
     }
 
     public void changePage(int newPage) {
         //if (mCurrentPageNum == newPage) { return; }
-
         final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
         final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
         mCurrentPageNum = newPage;
@@ -350,10 +378,13 @@ public class JokeFragment extends Fragment {
                 args.putSerializable("favorites", (Serializable) mFavorites);
                 args.putSerializable("upvotes", (Serializable) mUpvoted);
                 args.putSerializable("downvotes", (Serializable) mDownvoted);
+
                 if (mPurpose.equals("highScores"))
                     mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, true, args));
-                else
-                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, false, args));
+                else {
+                    mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, false, args);
+                    mRecyclerView.setAdapter(mAdapter);
+                }
             }
         }
     }
