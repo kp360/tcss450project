@@ -82,7 +82,10 @@ public class SubmitJokeFragment extends Fragment {
         addCourseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                submitJoke(buildEmailMessage(v), v);
+                if (checkValidInput(v)) {
+                    submitJoke(buildEmailMessage(v), v);
+                }
+
             }
         });
 
@@ -97,6 +100,24 @@ public class SubmitJokeFragment extends Fragment {
         });
 
         return v;
+    }
+
+    private boolean checkValidInput(View v) {
+        if (mJokeTitleEdit.getText().length() < 5) {
+            Toast.makeText(v.getContext(), "Please enter a valid joke title.", Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        } else if (mJokeSetupEdit.getText().length() <= 0) {
+            Toast.makeText(v.getContext(), "Please enter a valid joke setup.", Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        } else if (mJokePunchlineEdit.getText().length() <= 0) {
+            Toast.makeText(v.getContext(), "Please enter a valid joke punchline.", Toast.LENGTH_LONG)
+                    .show();
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -173,7 +194,6 @@ public class SubmitJokeFragment extends Fragment {
             HttpURLConnection urlConnection = null;
             for (String url : urls) {
                 try {
-                    System.out.println("SubmitJokeTask trying");
                     URL urlObject = new URL(url);
                     urlConnection = (HttpURLConnection) urlObject.openConnection();
 
@@ -186,7 +206,6 @@ public class SubmitJokeFragment extends Fragment {
                     }
 
                 } catch (Exception e) {
-                    System.out.println("SubmitJokeTask failed");
                     response = "Unable to submit joke, Reason: "
                             + e.getMessage();
                 } finally {

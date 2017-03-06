@@ -12,18 +12,30 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 import static org.junit.Assert.*;
 
 /**
+ * This class is intended to test methods in Joke.class for proper functionality
+ * and to cover all possible cases in those methods.
+ *
  * Created by Kyle on 3/5/2017.
  */
 
 public class JokeTest {
 
+    /**
+     * This method tests the Joke constructor with valid input.
+     * Should result in a non-null Joke object.
+     */
     @Test
-    public void testJokeConstructor() {
+    public void testJokeConstructorValidInput() {
         assertNotNull(new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 2, 10));
     }
+
+    /**
+     * This method tests the Joke constructor with valid input and checks
+     * if the fields are set properly via the getter methods.
+     */
     @Test
-    public void testJokeConstructorFields() {
+    public void testJokeConstructorCheckFieldsCorrect() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 2, 4);
         assertEquals(testJoke.getJokeID(),1);
@@ -33,8 +45,14 @@ public class JokeTest {
         assertEquals(testJoke.getmNumUpvotes(), 2);
         assertEquals(testJoke.getmNumDownvotes(), 4);
     }
+
+    /**
+     * This method tests the JSON parsing method.
+     * Passes in a complete JSON string and arraylist, if Jokes are parsed
+     * then method returns null.
+     */
     @Test
-    public void testParseCourseJSONJokeList() {
+    public void testParseCourseJSONJokeListParseValidString() {
         List<Joke> jokeList = new ArrayList<Joke>();
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 2, 10);
@@ -44,8 +62,13 @@ public class JokeTest {
                             "\"Boil the hell out of it!\"}]";
         assertNull(testJoke.parseCourseJSON(testJSON, jokeList));
     }
+    /**
+     * This method tests the JSON parsing method.
+     * Passes in a complete JSON string and Hashmap, if Jokes are parsed
+     * then method returns null.
+     */
     @Test
-    public void testParseCourseJSONFavorites() {
+    public void testParseCourseJSONFavoritesParseValidString() {
         Map<Integer, Joke> jokeList = new HashMap<Integer, Joke>();
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 2, 10);
@@ -55,6 +78,10 @@ public class JokeTest {
                 "\"Boil the hell out of it!\"}]";
         assertNull(testJoke.parseCourseJSON(testJSON, jokeList));
     }
+
+    /**
+     * TODO: Finish Javadoc
+     */
     @Test
     public void testIncrementNumUpvotes() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
@@ -63,7 +90,7 @@ public class JokeTest {
         assertEquals(testJoke.getmNumUpvotes(), 2);
     }
     @Test
-    public void testDecrementNumUpvotes() {
+    public void testDecrementNumUpvotesAboveZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 1, 1);
         testJoke.decrementNumUpvotes();
@@ -91,7 +118,7 @@ public class JokeTest {
         assertEquals(testJoke.getmNumDownvotes(), 2);
     }
     @Test
-    public void testDecrementNumDownvotes() {
+    public void testDecrementNumDownvotesAboveZero() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 1, 1);
         testJoke.decrementNumDownvotes();
@@ -112,12 +139,10 @@ public class JokeTest {
         assertEquals(testJoke.getmNumDownvotes(), 0);
     }
     @Test
-    public void testCompareTo() {
+    public void testCompareToSameJoke() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 0, 0);
-        Joke testJoke2 = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
-                "You better work", 0, 0);
-        assertEquals(testJoke.compareTo(testJoke2), 0);
+        assertEquals(testJoke.compareTo(testJoke), 0);
     }
     @Test
     public void testCompareToSameVotesGreaterName() {
@@ -139,7 +164,7 @@ public class JokeTest {
     public void testCompareToGreater() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 5, 0);
-        Joke testJoke2 = new Joke(1, "Test Joke2", "What did the Test say to the Joke?",
+        Joke testJoke2 = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 3, 0);
         assertEquals(testJoke.compareTo(testJoke2), 2);
     }
@@ -147,7 +172,7 @@ public class JokeTest {
     public void testCompareToLess() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 3, 0);
-        Joke testJoke2 = new Joke(1, "Test Joke2", "What did the Test say to the Joke?",
+        Joke testJoke2 = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 5, 0);
         assertEquals(testJoke.compareTo(testJoke2), -2);
     }
@@ -155,7 +180,7 @@ public class JokeTest {
     public void testCompareToMoreDownvotes() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 5, 3);
-        Joke testJoke2 = new Joke(1, "Test Joke2", "What did the Test say to the Joke?",
+        Joke testJoke2 = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 5, 2);
         assertEquals(testJoke.compareTo(testJoke2), -1);
     }
@@ -163,7 +188,7 @@ public class JokeTest {
     public void testCompareToLessDownvotes() {
         Joke testJoke = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 5, 2);
-        Joke testJoke2 = new Joke(1, "Test Joke2", "What did the Test say to the Joke?",
+        Joke testJoke2 = new Joke(1, "Test Joke", "What did the Test say to the Joke?",
                 "You better work", 5, 3);
         assertEquals(testJoke.compareTo(testJoke2), 1);
     }

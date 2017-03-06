@@ -370,11 +370,11 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(result);
                 String status = (String) jsonObject.get("result");
                 if (status.equals("success")) {
-                    Toast.makeText(getApplicationContext(), "User successfully added!"
+                    Toast.makeText(getApplicationContext(), "User successfully registered!"
                             , Toast.LENGTH_LONG)
                             .show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Failed to add: "
+                    Toast.makeText(getApplicationContext(), "Failed to register: "
                                     + jsonObject.get("error")
                             , Toast.LENGTH_LONG)
                             .show();
