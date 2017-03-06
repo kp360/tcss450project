@@ -183,6 +183,38 @@ public class LoginActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+    // TODO: Javadoc
+    private void storeLoginInfo() {
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_USERNAME), mUserUsernameEditText.getText().toString())
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_PASSWORD), mUserPasswordEditText.getText().toString())
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putBoolean(getString(R.string.REMEMBERED), true)
+                .commit();
+    }
+
+    // TODO: Javadoc
+    private void removeLoginInfo() {
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_USERNAME), "")
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putString(getString(R.string.RM_PASSWORD), "")
+                .commit();
+        mSharedPreferences
+                .edit()
+                .putBoolean(getString(R.string.REMEMBERED), false)
+                .commit();
+    }
+
     /**
      * This inner class is used to connect to the database and check if the user entered
      * username and password exist in our database, if they exist they're logged in
@@ -277,38 +309,6 @@ public class LoginActivity extends AppCompatActivity {
             }
 
         }
-    }
-
-    // TODO: Javadoc
-    private void storeLoginInfo() {
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_USERNAME), mUserUsernameEditText.getText().toString())
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_PASSWORD), mUserPasswordEditText.getText().toString())
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putBoolean(getString(R.string.REMEMBERED), true)
-                .commit();
-    }
-
-    // TODO: Javadoc
-    private void removeLoginInfo() {
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_USERNAME), "")
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_PASSWORD), "")
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putBoolean(getString(R.string.REMEMBERED), false)
-                .commit();
     }
 
     /**
