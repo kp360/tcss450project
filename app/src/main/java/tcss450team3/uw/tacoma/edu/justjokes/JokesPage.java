@@ -134,6 +134,7 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         mNumPages = getIntent().getIntExtra("numPages", 0);
         args.putInt("numPages", mNumPages);
         args.putString("purpose", "jokeViewer");
+        args.putString("username", mUsername);
         args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
         args.putSerializable("upvotes", (Serializable) mUpvoted);
         args.putSerializable("downvotes", (Serializable) mDownvoted);
@@ -181,6 +182,9 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
                     navigation.setVisibility(View.VISIBLE);
                 } else{
                     navigation.setVisibility(View.GONE);
+                }
+                if (position != 3) {
+                    ((JokeFragment)mDemoCollectionPagerAdapter.getItem(position)).updateElements();
                 }
             }
 

@@ -15,6 +15,7 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -105,13 +106,17 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     }
 
     public void checkFavorites() {
-        Iterator<Joke> iter = mValues.iterator();
-        while (iter.hasNext()) {
-            int currJokeID = iter.next().getJokeID();
-            if (!mFavorites.keySet().contains(currJokeID)) {
-                iter.remove();
-            }
+        Log.i("c", "checkingFaves");
+        mValues.clear();
+        for (Joke currentJoke: mFavorites.values()) {
+            mValues.add(currentJoke);
         }
+        Collections.sort(mValues, new Comparator<Joke>() {
+            @Override
+            public int compare(Joke o1, Joke o2) {
+                return o1.getJokeTitle().compareTo(o2.getJokeTitle());
+            }
+        });
     }
 
     public void checkHighScores() {
