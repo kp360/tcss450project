@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import tcss450team3.uw.tacoma.edu.justjokes.data.PageDB;
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
 import java.io.BufferedReader;
@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +33,7 @@ import java.util.Set;
 /**
  * A fragment that lists 20 jokes, displaying only their title.
  *
- * @author Vlad (2.15.17)
+ * @author Vlad 3/6/2017
  */
 public class JokeFragment extends Fragment {
 
@@ -42,16 +41,11 @@ public class JokeFragment extends Fragment {
     private static final String BASE_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/";
 
+    /** Part of the url for the php file that retrieves a list of 20 jokes. */
     private static final String JOKES_URL = "list.php?page=";
-
-    /** This text is used to convey to the user what page they're currently on. */
-    private static final String PAGE_TEXT = " Page: ";
 
     /** A RecylerView object that handles smooth list scrolling. */
     private RecyclerView mRecyclerView;
-
-    /** The TextView that tells the user what page of jokes they are currently browsing. */
-    private TextView mPageNumTextView;
 
     /** This variable holds the amount of pages of jokes our database currently has. It is used to
      * disable the next button, so the user doesn't encounter any pages without jokes. */
@@ -61,20 +55,26 @@ public class JokeFragment extends Fragment {
      * previous (prev) and next buttons are enabled/disabled at the proper times. */
     private int mCurrentPageNum;
 
-    private SharedPreferences mSharedPreferences;
-
+    /** The purpose of this JokeFragment (i.e. displaying the high scores or favorites). */
     private String mPurpose;
 
+    /** A Map of the user's favorite jokes, jokeIds are mapped to the Joke objects, this was done
+     * to ensure quick searches. */
     private Map<Integer, Joke> mFavorites;
 
+    /** A Set of JokeIds, of the Jokes that the user has upvoted. */
     private Set<Integer> mUpvoted;
 
+    /** A Set of JokeIds, of the Jokes that the user has downvoted. */
     private Set<Integer> mDownvoted;
 
+    /** The current user's username. */
     private String mUsername;
 
+    /** The PageDB that we will use to store and retrieve page numbers. */
     private PageDB mPageDB;
 
+    /** The RecyclerViewAdapter that will handle displaying Jokes in this fragment. */
     private MyJokeRecyclerViewAdapter mAdapter;
 
     /** Auto-generated variable. */
@@ -110,7 +110,8 @@ public class JokeFragment extends Fragment {
 
     /**
      * This is called when the Fragment is created, we use it to retrieve the amount of pages that
-     * contain jokes, which we use to enable/disable the page navigation buttons.
+     * contain jokes, and the user's favorites and up/downvotes. We use the number of pages value
+     * to enable/disable the page navigation buttons.
      *
      * @param savedInstanceState Stores data that was sent from the caller.
      */
@@ -129,40 +130,39 @@ public class JokeFragment extends Fragment {
         }
     }
 
-    public void setupJokesPage() {
-        mPageDB = new PageDB(getActivity());
-        mCurrentPageNum = mPageDB.getPage(mUsername);
-        if (mCurrentPageNum == -1) {
-            mCurrentPageNum = 1;
-            mPageDB.insertCourse(mUsername, mCurrentPageNum);
-        }
-
-        final Spinner dropDownList = (Spinner) getActivity().findViewById(R.id.dropDownPages);
-        dropDownList.setSelection(mCurrentPageNum - 1);
-    }
-
+    /**
+     * This methods is called when we access a given tab. It makes sure that the elements in the
+     * clicked tab is updated/holds current values.
+     */
     public void updateElements() {
         if (mPurpose.equals("jokeViewer")) {
             mRecyclerView.setAdapter(mAdapter);
         } else if (mPurpose.equals("highScores"))
             new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
-        else {
+        else { //mPurpose.equals("favorites")
             updateRecyclerView();
         }
     }
 
+    /**
+     * This method calls methods in our RecyclerViewAdapter to ensure the favorites and high scores
+     * lists are up-to-date.
+     * */
     public void updateRecyclerView() {
         MyJokeRecyclerViewAdapter currAdapter = (MyJokeRecyclerViewAdapter) mRecyclerView.getAdapter();
         if (mPurpose.equals("favorites"))
             currAdapter.checkFavorites();
         else if (mPurpose.equals("highScores"))
             currAdapter.checkHighScores();
-        mRecyclerView.getAdapter().notifyDataSetChanged();
+        currAdapter.notifyDataSetChanged();
     }
 
     /**
-     * This method downloads the page of jokes, and also provides functionality for the
-     * 'Next'/'Prev' buttons.
+     * This method does many different things, depending on the purpose of the current JokeFragment
+     * object. If it's for jokeViewing, we initialize all the buttons and the dropdown list. If it's
+     * for displaying the high scores tab, we access the high scores php file. If it's for the favorites
+     * tab, we simply fill our list with the user's favorite jokes, which we retrieved when the user
+     * initially logged in.
      *
      * @param inflater A LayoutInflater object, that is used to get a View.
      * @param container A ViewGroup object that is also used to get a View.
@@ -200,29 +200,19 @@ public class JokeFragment extends Fragment {
 
                 dropDownList.setSelection(mCurrentPageNum - 1);
 
-                //Decrements the current page number variable and loads the jokes from that page.
-                //Enables/disables buttons accordingly.
+                //Sets the dropDownList to the proper page, which then causes the fragment to update.
                 prevButton.setOnClickListener(new Button.OnClickListener() {
                     public void onClick(View v) {
                         dropDownList.setSelection(mCurrentPageNum - 2); //(mCurrentPageNum - 1) - 1
                     }
                 });
 
-                //Increments the current page number variable and loads the jokes from that page.
-                //Enables/disables buttons accordingly.
+                //Sets the dropDownList to the proper page, which then causes the fragment to update.
                 nextButton.setOnClickListener(new Button.OnClickListener() {
                     public void onClick(View v) {
                         dropDownList.setSelection(mCurrentPageNum); //(mCurrentPageNum + 1) - 1
                     }
                 });
-
-                if (mCurrentPageNum == 1)
-                    prevButton.setEnabled(false);
-
-                if (mCurrentPageNum == mNumPages)
-                    nextButton.setEnabled(false);
-
-                mPageNumTextView = (TextView) getActivity().findViewById(R.id.pageNum);
                 break;
             case "highScores":
                 new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
@@ -240,6 +230,10 @@ public class JokeFragment extends Fragment {
         return view;
     }
 
+    /**
+     * This method stores the user's last browsed page's page number in our SQLite database (only
+     * applicable when the JokeFragment is used for jokeViewing/jokeBrowsing).
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -248,8 +242,12 @@ public class JokeFragment extends Fragment {
         }
     }
 
+    /**
+     * This method downloads page <newPage> of jokes from our database, and ensures the proper
+     * navigation buttons are enabled/disabled.
+     * @param newPage The page of jokes to download and display.
+     */
     public void changePage(int newPage) {
-        //if (mCurrentPageNum == newPage) { return; }
         final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
         final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
         mCurrentPageNum = newPage;
@@ -339,8 +337,8 @@ public class JokeFragment extends Fragment {
                     }
 
                 } catch (Exception e) {
-                    response = "Unable to download the list of courses, Reason: "
-                            + e.getMessage();
+                    response = "Unable to download the list of jokes. " +
+                            "Please check your internet connection.";
                 } finally {
                     if (urlConnection != null)
                         urlConnection.disconnect();
@@ -379,12 +377,14 @@ public class JokeFragment extends Fragment {
                 args.putSerializable("upvotes", (Serializable) mUpvoted);
                 args.putSerializable("downvotes", (Serializable) mDownvoted);
 
+                //If this JokeFragment object is used from showing the high scores jokes, pass a
+                //parameter so that the jokes are numbered, 1-20.
                 if (mPurpose.equals("highScores"))
-                    mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(courseList, mListener, true, args));
+                   mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, true, args);
                 else {
-                    mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, false, args);
-                    mRecyclerView.setAdapter(mAdapter);
+                   mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, false, args);
                 }
+                mRecyclerView.setAdapter(mAdapter);
             }
         }
     }

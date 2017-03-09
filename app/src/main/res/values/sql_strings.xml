@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="CREATE_COURSE_SQL">
-    CREATE TABLE IF NOT EXISTS Course
+    <string name="CREATE_PAGE_SQL">
+    CREATE TABLE IF NOT EXISTS PageNumbers
     (username TEXT PRIMARY KEY, pageNum INTEGER)
 </string>
 
-<string name="DROP_COURSE_SQL">
-    DROP TABLE IF EXISTS Course
+<string name="DROP_PAGE_SQL">
+    DROP TABLE IF EXISTS PageNumbers
 </string>
 
 </resources>

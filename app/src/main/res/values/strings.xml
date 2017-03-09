@@ -6,6 +6,7 @@
     <string name="submit">Submit</string>
     <string name="register">Register</string>
     <string name="showPunchline">Show Punchline</string>
+    <string name="hidePunchline">Hide Punchline</string>
     <string name="previous">Prev</string>
     <string name="next">Next</string>
     <string name="logout">Logout</string>

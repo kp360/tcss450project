@@ -33,15 +33,23 @@ import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
  * A Custom Dialog Fragment that is used to display a joke's setup and punchline, it allows the user
  * show/hide the joke's punchline.
  *
- * @author Vlad (2.15.17)
+ * @author Vlad 3/5/2017
  */
 public class CustomJokeDialogFragment extends DialogFragment {
-    public final static String COURSE_ITEM_SELECTED = "course_selected";
+    /** String identifier to retrieve the Joke from the Bundle object */
+    public final static String JOKE_SELECTED = "joke_selected";
+
+    /** URL that is concatenated with other strings to access different php files on our server. */
     private static final String BASE_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/handle";
 
+    /** An integer that signifies that the user has not voted on the current joke yet. */
     public final static int NO_VOTE = 0;
+
+    /** An integer that signifies that the user has upvoted the current joke. */
     public final static int UPVOTED = 1;
+
+    /** An integer that signifies that the user has downvoted the current joke. */
     public final static int DOWNVOTED = 2;
 
     /** A TextView variable that allows us to modify the setup TextView seen by the user. */
@@ -53,24 +61,50 @@ public class CustomJokeDialogFragment extends DialogFragment {
     /** The Button that hides/shows a joke's punchline. */
     private Button mShowButton;
 
+    /** A Map of the user's favorite jokes, jokeIds are mapped to the Joke objects, this was done
+     * to ensure quick searches. */
     private Map<Integer, Joke> mFavorites;
+
+    /** A Set of JokeIds, of the Jokes that the user has upvoted. */
     private Set<Integer> mUpvotes;
+
+    /** A Set of JokeIds, of the Jokes that the user has downvoted. */
     private Set<Integer> mDownvotes;
+
+    /** The current user's username. */
     private String mUsername;
 
+    /** The Favorite button that appears on the UI. */
     private ImageView mFavoriteButton;
+
+    /** The Upvote button that appears on the UI. */
     private ImageView mUpvoteButton;
+
+    /** The Downvote button that appears on the UI. */
     private ImageView mDownvoteButton;
+
+    /** The onscreen TextView that displays how many upvotes a Joke currently has. */
     private TextView mUpvoteTextView;
+
+    /** The onscreen TextView that displays how many downvotes a Joke currently has. */
     private TextView mDownvoteTextView;
 
+    /** A boolean value that keeps user's from abusing our buttons. */
     private boolean mCurrentlyBusy;
+
+    /** A String that we use to differentiate the user's up/downvote button clicks. */
     private String mAction;
 
+    /** The Joke object that we are currently working with. */
     private Joke mCurrentJoke;
+
+    /** The Joke object that we're currently working on's id number. */
     private int mCurrentJokeID;
 
+    /** An integer that represents whether the Joke has been up/downvoted, or not voted on yet. */
     private int mVotingStatus;
+
+    /** A boolean to let us know if the current Joke object is on of the user's favorites. */
     private boolean isFavorite;
 
     /** Auto-generated variable, used to detect user interaction. */
@@ -125,7 +159,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            mCurrentJoke = (Joke) args.getSerializable(COURSE_ITEM_SELECTED);
+            mCurrentJoke = (Joke) args.getSerializable(JOKE_SELECTED);
             mCurrentJokeID = mCurrentJoke.getJokeID();
             updateView();
         }
@@ -147,10 +181,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
             public void onClick(View view) {
                 if (mJokePunchlineTextView.getVisibility() == View.INVISIBLE) {
                     mJokePunchlineTextView.setVisibility(View.VISIBLE);
-                    mShowButton.setText("Hide Punchline");
+                    mShowButton.setText(R.string.hidePunchline);
                 } else {
                     mJokePunchlineTextView.setVisibility(View.INVISIBLE);
-                    mShowButton.setText("Show Punchline");
+                    mShowButton.setText(R.string.showPunchline);
                 }
             }
         });
@@ -169,16 +203,18 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
                 mAction = "Upvote";
 
-                if (mVotingStatus == NO_VOTE) {
-                    //add one to upvote score. mark as upvoted.
+                if (mVotingStatus == NO_VOTE) { //The Jokes has not been voted on yet.
+                    //Upvote the joke.
                     mUpvoteButton.setImageResource(R.drawable.upvote);
                     mUpvotes.add(mCurrentJokeID);
                     mCurrentJoke.incrementNumUpvotes();
-                } else if (mVotingStatus == UPVOTED) {
+                } else if (mVotingStatus == UPVOTED) { //The Joke is already upvoted.
+                    //Set the user's vote to neutral/unvoted.
                     mUpvoteButton.setImageResource(R.drawable.neutralup);
                     mUpvotes.remove(mCurrentJokeID);
                     mCurrentJoke.decrementNumUpvotes();
-                } else { //Downvoted.
+                } else { //The Joke is currently downvoted.
+                    //Remove the downvote, upvote the Joke.
                     mUpvoteButton.setImageResource(R.drawable.upvote);
                     mDownvoteButton.setImageResource(R.drawable.neutraldown);
                     mDownvotes.remove(mCurrentJokeID);
@@ -201,26 +237,28 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
                 mAction = "Downvote";
 
-                if (mVotingStatus == NO_VOTE) {
+                if (mVotingStatus == NO_VOTE) { //The Jokes has not been voted on yet.
+                    //Downvote the joke.
                     mDownvoteButton.setImageResource(R.drawable.downvote);
                     mDownvotes.add(mCurrentJokeID);
                     mCurrentJoke.incrementNumDownvotes();
-                } else if (mVotingStatus == UPVOTED) {
+                } else if (mVotingStatus == UPVOTED) { //The Joke is upvoted.
+                    //Remove the upvote, downvote the Joke.
                     mUpvoteButton.setImageResource(R.drawable.neutralup);
                     mDownvoteButton.setImageResource(R.drawable.downvote);
                     mUpvotes.remove(mCurrentJokeID);
                     mDownvotes.add(mCurrentJokeID);
                     mCurrentJoke.incrementNumDownvotes();
                     mCurrentJoke.decrementNumUpvotes();
-                } else { //Downvoted.
+                } else {  //The Joke is already downvoted.
+                    //Set the user's vote to neutral/unvoted.
                     mDownvoteButton.setImageResource(R.drawable.neutraldown);
                     mDownvotes.remove(mCurrentJokeID);
                     mCurrentJoke.decrementNumDownvotes();
                 }
 
                 updateCountTextViews();
-                String url = buildURL();
-                new EditVote().execute(new String[]{url});
+                new EditVote().execute(buildURL());
             }
         });
 
@@ -231,11 +269,11 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 else
                     mCurrentlyBusy = true;
 
-                if (isFavorite) {
+                if (isFavorite) { //If already favorited, unfavorite the Joke.
                     mFavoriteButton.setMaxWidth(56);
                     mFavoriteButton.setImageResource(R.drawable.favoritebutton);
                     mFavorites.remove(mCurrentJokeID);
-                } else {
+                } else { //Not favorited yet, so favorite the Joke.
                     mFavoriteButton.setMaxWidth(64);
                     mFavoriteButton.setImageResource(R.drawable.unfavoritebutton);
                     mFavorites.put(mCurrentJokeID, mCurrentJoke);
@@ -252,8 +290,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     }
 
     /**
-     * This method updates the proper text views to display the joke's setup and punchline.
-     *
+     * This method updates the proper TextViews to display the joke's setup and punchline.
      */
     public void updateView() {
         if (mCurrentJoke != null) {
@@ -262,11 +299,18 @@ public class CustomJokeDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * This method updates the up/downvote TextViews to display the joke's current vote amounts.
+     */
     private void updateCountTextViews() {
         mUpvoteTextView.setText(Integer.toString(mCurrentJoke.getmNumUpvotes()));
         mDownvoteTextView.setText(Integer.toString(mCurrentJoke.getmNumDownvotes()));
     }
 
+    /**
+     * Builds the URL to modify the favorites field in our database for the current joke.
+     * @return Returns the URL, with all of the GET fields included.
+     */
     private String buildFavoritesURL() {
         StringBuilder sb = new StringBuilder(BASE_URL);
         sb.append("Favorites.php?user=");
@@ -276,16 +320,20 @@ public class CustomJokeDialogFragment extends DialogFragment {
         sb.append(mCurrentJokeID);
         sb.append("&favorite=");
         if (isFavorite)
-            sb.append(0);
+            sb.append(0); //We want to unfavorite this joke.
         else
-            sb.append(1);
+            sb.append(1); //We want to favorite this joke.
 
         return sb.toString();
     }
 
+    /**
+     * Builds the URL to modify the up/downvote field in our database for the current joke.
+     * @return
+     */
     private String buildURL() {
         StringBuilder sb = new StringBuilder(BASE_URL);
-        sb.append(mAction);
+        sb.append(mAction); //Determines if we access the handleUpvotes or handleDownvotes php file.
 
             sb.append("s.php?user=");
             sb.append(mUsername);
@@ -317,6 +365,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    /**
+     * Checks if the current joke has been up/downvoted or favorited, and adjusts the button images
+     * to reflect this initial state.
+     */
     private void checkInitialStatus() {
         if (mUpvotes.contains(mCurrentJokeID)) {
             mVotingStatus = UPVOTED;
@@ -335,8 +387,16 @@ public class CustomJokeDialogFragment extends DialogFragment {
             isFavorite = false;
     }
 
+    /**
+     * Class that handles modifying the up/downvote fields in our database.
+     */
     private class EditVote extends AsyncTask<String, Void, String> {
 
+        /**
+         * This methods handles accessing our php file.
+         * @param urls The URL of our php file.
+         * @return Returns the web server's response.
+         */
         @Override
         protected String doInBackground(String... urls) {
             String response = "";
@@ -367,11 +427,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
 
         /**
-         * It checks to see if there was a problem with the URL(Network) which is when an
-         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
-         * If not, it displays the exception.
+         * This method takes the web server's response, and figures out what to do if there was an
+         * error of some kind, or if the response was a successful one.
          *
-         * @param result
+         * @param result The web server's response.
          */
         @Override
         protected void onPostExecute(String result) {
@@ -396,9 +455,6 @@ public class CustomJokeDialogFragment extends DialogFragment {
                             mVotingStatus = NO_VOTE;
                     }
 
-                    /**Toast.makeText(getActivity().getApplicationContext(), "Successfully updated: " + mCurrentJoke.getJokeTitle()
-                            , Toast.LENGTH_LONG)
-                            .show(); **/
                     ((JokesPage) getActivity()).refreshPage();
                 } else {
                     resetVote();
@@ -418,6 +474,10 @@ public class CustomJokeDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Resets all the up/downvote images and the Sets that hold JokeIds. This method gets called
+     * when there was an issue updating our online database with the user's vote selection.
+     */
     private void resetVote() {
         if (mAction.equals("Upvote")) {
             if (mVotingStatus == NO_VOTE) {
@@ -454,10 +514,35 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 mCurrentJoke.incrementNumDownvotes();
             }
         }
+        updateCountTextViews();
     }
 
-    private class EditFavorite extends AsyncTask<String, Void, String> {
+    /**
+     * Resets the favorite buttons image and the Map that managers the user's favorites.
+     * This method gets called when there was an issue updating our online database with the user's
+     * favorite/unfavorite selection.
+     */
+    private void resetFavorite() {
+        if (isFavorite) {
+            mFavoriteButton.setMaxWidth(64);
+            mFavoriteButton.setImageResource(R.drawable.unfavoritebutton);
+            mFavorites.put(mCurrentJokeID, mCurrentJoke);
+        } else {
+            mFavoriteButton.setMaxWidth(56);
+            mFavoriteButton.setImageResource(R.drawable.favoritebutton);
+            mFavorites.remove(mCurrentJokeID);
+        }
+    }
 
+    /**
+     * This class handles accessing the web server to update the user's favorite.
+     */
+    private class EditFavorite extends AsyncTask<String, Void, String> {
+        /**
+         * This methods handles accessing our php file.
+         * @param urls The URL of our php file.
+         * @return Returns the web server's response.
+         */
         @Override
         protected String doInBackground(String... urls) {
             String response = "";
@@ -488,46 +573,35 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
 
         /**
-         * It checks to see if there was a problem with the URL(Network) which is when an
-         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
-         * If not, it displays the exception.
+         * This method takes the web server's response, and figures out what to do if there was an
+         * error of some kind, or if the response was a successful one.
          *
-         * @param result
+         * @param result The web server's response.
          */
         @Override
         protected void onPostExecute(String result) {
-            // Something wrong with the network or the URL.
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 String status = (String) jsonObject.get("result");
-                //enable buttons.
                 if (status.equals("success")) {
-                    /**Toast.makeText(getActivity().getApplicationContext(), "Successfully updated: " + mCurrentJoke.getJokeTitle()
-                            , Toast.LENGTH_LONG)
-                            .show();**/
-
                     if (isFavorite)
                         isFavorite = false;
                     else
                         isFavorite = true;
 
-                    ((JokesPage) getActivity()).refreshPage();
+                    ((JokesPage) getActivity()).refreshPage(); //Refreshes the list fragment to
+                                                               //reflect the changes made by the
+                                                               //user.
                 } else {
-                    if (isFavorite) {
-                        mFavoriteButton.setMaxWidth(64);
-                        mFavoriteButton.setImageResource(R.drawable.unfavoritebutton);
-                        mFavorites.put(mCurrentJokeID, mCurrentJoke);
-                    } else {
-                        mFavoriteButton.setMaxWidth(56);
-                        mFavoriteButton.setImageResource(R.drawable.favoritebutton);
-                        mFavorites.remove(mCurrentJokeID);
-                    }
+                    resetFavorite();
                     Toast.makeText(getActivity().getApplicationContext(), "Failed to update: " + mCurrentJoke.getJokeTitle()
                                     + jsonObject.get("error")
                             , Toast.LENGTH_LONG)
                             .show();
                 }
             } catch (JSONException e) {
+                resetFavorite();
+
                 Toast.makeText(getActivity().getApplicationContext(), "Please check your internet connection."
                         , Toast.LENGTH_LONG).show();
             }

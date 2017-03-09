@@ -26,15 +26,28 @@ import java.util.Set;
 /**
  * This class assists the JokeFragment in displaying a smooth, scrolling list of jokes.
  *
- * @author Vlad (2.15.17)
+ * @author Vlad 3/4/2017
  */
 public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecyclerViewAdapter.ViewHolder> {
 
+    /** A list of Joke objects to display in the list fragment. */
     private final List<Joke> mValues;
+
+    /** Listener to detect interactions with the list items. */
     private final OnListFragmentInteractionListener mListener;
+
+    /** A boolean variable that tells us whether or not to number the elements in our list (only
+     * necessary for the high scores tab). */
     private boolean mNumbered;
+
+    /** A Map of the user's favorite jokes, jokeIds are mapped to the Joke objects, this was done
+     * to ensure quick searches. */
     private Map<Integer, Joke> mFavorites;
+
+    /** A Set of JokeIds, of the Jokes that the user has upvoted. */
     private Set<Integer> mUpvotes;
+
+    /** A Set of JokeIds, of the Jokes that the user has downvoted. */
     private Set<Integer> mDownvotes;
 
     /**
@@ -76,9 +89,9 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         if (mNumbered)
-            holder.mIdView.setText((position + 1) + ". " + mValues.get(position).getJokeTitle());
+            holder.mJokeTitleView.setText((position + 1) + ". " + mValues.get(position).getJokeTitle());
         else
-            holder.mIdView.setText(mValues.get(position).getJokeTitle());
+            holder.mJokeTitleView.setText(mValues.get(position).getJokeTitle());
 
         if (mFavorites != null && mFavorites.keySet().contains(holder.mItem.getJokeID()))
             holder.mFavoriteBox.setVisibility(View.VISIBLE);
@@ -105,8 +118,11 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         });
     }
 
+    /**
+     * Clears the favorites list, and gets an updated copy of the user's favorite jokes. Also sorts
+     * them alphabetically.
+     */
     public void checkFavorites() {
-        Log.i("c", "checkingFaves");
         mValues.clear();
         for (Joke currentJoke: mFavorites.values()) {
             mValues.add(currentJoke);
@@ -119,6 +135,9 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
         });
     }
 
+    /**
+     * Sorts the list values, to ensure that they are in the correct order.
+     */
     public void checkHighScores() {
         Collections.sort(mValues, Collections.<Joke>reverseOrder());
     }
@@ -137,23 +156,36 @@ public class MyJokeRecyclerViewAdapter extends RecyclerView.Adapter<MyJokeRecycl
      * Auto-generated method, slightly modified by us.
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
+        /** The View object that our elements lie in. */
         public final View mView;
-        public final TextView mIdView;
+
+        /** The TextView that displays the Joke's title. */
+        public final TextView mJokeTitleView;
+
+        /** The View that displays a blue or orange box to denote up/downvoting. */
         public final View mVoteBox;
+
+        /** The View that displays a pinkish box to denote that a joke has been favorited. */
         public final View mFavoriteBox;
+
+        /** The Joke object that we are listing. */
         public Joke mItem;
 
+        /**
+         * Constructor to initialize all the fields.
+         * @param view The View object that our elements lie in.
+         */
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
+            mJokeTitleView = (TextView) view.findViewById(R.id.id);
             mVoteBox = view.findViewById(R.id.voteBox);
             mFavoriteBox = view.findViewById(R.id.favoriteBox);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mIdView.getText() + "'";
+            return super.toString() + " '" + mJokeTitleView.getText() + "'";
         }
     }
 }

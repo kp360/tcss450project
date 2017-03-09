@@ -11,13 +11,13 @@ import java.util.Map;
 /**
  * Joke class to handle all the pieces of an individual joke.
  *
- * @author Vlad (2.15.17)
+ * @author Vlad 3/5/17
  */
 public class Joke implements Serializable, Comparable {
+    /** Strings that we'll use when we parse the incomming JSON in our parseJSON methods. */
     public static final String JOKE_ID = "jokeID", JOKE_TITLE = "jokeTitle"
             , JOKE_SETUP = "jokeSetup", JOKE_PUNCHLINE = "jokePunchline"
-            , NUM_UPVOTES = "numUVotes", NUM_DOWNVOTES = "numDVotes"
-            , USER_SUBMITTED="userName";
+            , NUM_UPVOTES = "numUVotes", NUM_DOWNVOTES = "numDVotes";
 
     /** A Joke's unique ID number. */
     private int mJokeID;
@@ -39,11 +39,12 @@ public class Joke implements Serializable, Comparable {
 
     /**
      * Constructor to initialize all the fields.
-     *
      * @param jokeID The Joke's unique ID number.
      * @param jokeTitle The Joke's title.
      * @param jokeSetup The Joke's beginning.
      * @param jokePunchline The Joke's conclusion.
+     * @param numUpvotes The number of upvotes a joke has.
+     * @param numDownvotes The number of downvotes a joke has.
      */
     public Joke(int jokeID, String jokeTitle, String jokeSetup, String jokePunchline, int numUpvotes, int numDownvotes) {
         this.mJokeID = jokeID;
@@ -56,15 +57,16 @@ public class Joke implements Serializable, Comparable {
 
     /**
      * Parses the json string, returns an error message if unsuccessful.
-     * Returns course list if success.
-     * @param courseJSON The JSON that contains all of the Jokes' info.
+     * Returns jokeList filled with elements if success.
+     * @param jokeJSON The JSON that contains all of the Jokes' info.
+     * @param jokeList The list to store all of the parsed Joke objects in.
      * @return reason or null if successful.
      */
-    public static String parseCourseJSON(String courseJSON, List<Joke> jokeList) {
+    public static String parseCourseJSON(String jokeJSON, List<Joke> jokeList) {
         String reason = null;
-        if (courseJSON != null) {
+        if (jokeJSON != null) {
             try {
-                JSONArray arr = new JSONArray(courseJSON);
+                JSONArray arr = new JSONArray(jokeJSON);
 
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject obj = arr.getJSONObject(i);
@@ -82,22 +84,23 @@ public class Joke implements Serializable, Comparable {
 
     /**
      * Parses the json string, returns an error message if unsuccessful.
-     * Returns course list if success.
-     * @param courseJSON The JSON that contains all of the Jokes' info.
+     * Returns jokeMap, filled Joke objects and their ids, if no errors occur.
+     * @param jokeJSON The JSON that contains all of the Jokes' info.
+     * @param jokeMap A Map to hold the Joke ids and Joke objects.
      * @return reason or null if successful.
      */
-    public static String parseCourseJSON(String courseJSON, Map<Integer, Joke> jokeList) {
+    public static String parseCourseJSON(String jokeJSON, Map<Integer, Joke> jokeMap) {
         String reason = null;
-        if (courseJSON != null) {
+        if (jokeJSON != null) {
             try {
-                JSONArray arr = new JSONArray(courseJSON);
+                JSONArray arr = new JSONArray(jokeJSON);
 
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject obj = arr.getJSONObject(i);
                     Joke joke = new Joke(obj.getInt(Joke.JOKE_ID), obj.getString(Joke.JOKE_TITLE)
                             , obj.getString(Joke.JOKE_SETUP), obj.getString(Joke.JOKE_PUNCHLINE)
                             , obj.getInt(Joke.NUM_UPVOTES), obj.getInt(Joke.NUM_DOWNVOTES));
-                    jokeList.put(joke.getJokeID(), joke);
+                    jokeMap.put(joke.getJokeID(), joke);
                 }
             } catch (JSONException e) {
                 reason =  "Unable to parse data, Reason: " + e.getMessage();
@@ -108,15 +111,15 @@ public class Joke implements Serializable, Comparable {
     }
 
     /**
-     * Used to incremement the upvote counter field.
+     * Used to increment the upvote counter field.
      */
     public void incrementNumUpvotes() {
         mNumUpvotes += 1;
     }
 
     /**
-     * Used to decrement the upvote counter field if.
-     * If the upvote count can't be decremented below 0.
+     * Used to decrement the upvote counter field, also ensures
+     * that the upvote count can't be decremented below 0.
      */
     public void decrementNumUpvotes() {
         if (mNumUpvotes > 0) {
@@ -127,15 +130,15 @@ public class Joke implements Serializable, Comparable {
     }
 
     /**
-     * Used to incremement the downvote counter field.
+     * Used to increment the downvote counter field.
      */
     public void incrementNumDownvotes() {
         mNumDownvotes += 1;
     }
 
     /**
-     * Used to decrement the downvote counter field if.
-     * If the upvote count can't be decremented below 0.
+     * Used to decrement the downvote counter field, also ensures
+     * that the downvote count can't be decremented below 0.
      */
     public void decrementNumDownvotes() {
         if (mNumDownvotes > 0) {
@@ -229,10 +232,13 @@ public class Joke implements Serializable, Comparable {
     }
 
     /**
-     * Overriden method used by Collections.sort in order to sort jokes by their vote counts.
-     *
+     * Overriden method used by Collections.sort in order to sort our jokes in a custom fashion.
+     * First, the jokes are sorted by the number of upvotes they have. If there is a tie, the one
+     * with the least amount of downvotes wins. If there's STILL a tie, then they are simply listed
+     * in alphabetical order.
      * @param o the object being compared to this object.
-     * @return integer -1, 0, 1 if less than, same or greater than respectively.
+     * @return An integer, negative, 0, or positive, that corresponds to how the two Joke objects
+     * compare to each other. (See statement above for detailed outline of how Jokes are compared.)
      */
     @Override
     public int compareTo(Object o) {

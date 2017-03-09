@@ -134,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void login(String url) {
         DownloadUsersTask task = new DownloadUsersTask();
-        task.execute(new String[]{url.toString()});
+        task.execute(url);
     }
 
     /**
@@ -147,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void register(String url) {
         RegisUserTask task = new RegisUserTask();
-        task.execute(new String[]{url.toString()});
+        task.execute(url);
     }
 
     /**
@@ -312,8 +312,9 @@ public class LoginActivity extends AppCompatActivity {
                             .show();
                 }
             } catch (JSONException e) {
-                Toast.makeText(getApplicationContext(), "Something wrong with the data" +
-                        e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Unable to login, " +
+                        "please check your internet connection."
+                        , Toast.LENGTH_LONG).show();
             }
 
         }

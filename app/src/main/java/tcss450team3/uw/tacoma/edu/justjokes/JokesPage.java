@@ -1,9 +1,6 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,67 +8,50 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 
-import android.support.design.widget.Snackbar;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.widget.EditText;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
 /**
- * This class provides the backend for the Activity where a list of jokes is displayed.
+ * This class provides the backend for the logged-in user environment activity, where users can
+ * browse our 4 different pages/tabs, and rate or favorite jokes, or submit their own jokes.
  *
- * @author Vlad (2.16.17)
+ * @author Vlad 3/6/2017
  */
 
 public class JokesPage extends AppCompatActivity implements JokeFragment.OnListFragmentInteractionListener {
+    /** The PagerAdapter object that handles the 4 Fragments that are displayed in mViewPager. */
+    private JustJokesPagerAdapter mJustJokesPagerAdapter;
 
-    DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
-    ViewPager mViewPager;
+    /** This ViewPager object displays and manages our 4 tabs. */
+    private ViewPager mViewPager;
 
+    /** A Map of the user's favorite jokes, jokeIds are mapped to the Joke objects, this was done
+     * to ensure quick searches. */
     private Map<Integer, Joke> mFavoriteJokes;
+
+    /** A Set of JokeIds, of the Jokes that the user has upvoted. */
     private Set<Integer> mUpvoted;
+
+    /** A Set of JokeIds, of the Jokes that the user has downvoted. */
     private Set<Integer> mDownvoted;
+
+    /** The current user's username. */
     private String mUsername;
-    private Spinner mDropDownPages;
-    private String[] mDropDownValues;
-    private int mNumPages;
 
     /**
      * This method handles opening a CustomAdminJokeDialogFragment when a joke in the list is tapped on.
@@ -87,14 +67,16 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         args.putSerializable("upvotes", (Serializable) mUpvoted);
         args.putSerializable("downvotes", (Serializable) mDownvoted);
         args.putString("username", mUsername);
-        args.putSerializable(jokeDetailFragment.COURSE_ITEM_SELECTED, joke);
+        args.putSerializable(CustomJokeDialogFragment.JOKE_SELECTED, joke);
         jokeDetailFragment.setArguments(args);
         jokeDetailFragment.show(getSupportFragmentManager(), "launch");
     }
 
     /**
-     * This method is called when the JokesPage Activity is created. It opens a JokeFragment object,
-     * and passes it the number of pages of jokes that are currently in our database.
+     * This method is called when the JokesPage Activity is created. It initializes our ViewPager
+     * object, and all the Fragments that will inhabit it. It also parses the values we retrieved
+     * when we logged in (Favorites, Upvotes, and Downvotes list for the current user). Lastly it
+     * handles sets up the dropDownItem that we have in one of our tabs.
      *
      * @param savedInstanceState Stores data that was sent from the caller.
      */
@@ -107,8 +89,8 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         String upvotesStringVersion = (getIntent().getStringExtra("upvotes"));
         if (!upvotesStringVersion.equals("")) {
             String[] upvoted = upvotesStringVersion.split(",");
-            for (int i = 0; i < upvoted.length; i++) {
-                mUpvoted.add(Integer.parseInt(upvoted[i]));
+            for (String anUpvoted : upvoted) {
+                mUpvoted.add(Integer.parseInt(anUpvoted));
             }
         }
 
@@ -117,8 +99,8 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         if (!downvotesStringVersion.equals("")) {
             String[] downvoted = downvotesStringVersion.split(",");
             mDownvoted = new HashSet<Integer>();
-            for (int i = 0; i < downvoted.length; i++) {
-                mDownvoted.add(Integer.parseInt(downvoted[i]));
+            for (String aDownvoted : downvoted) {
+                mDownvoted.add(Integer.parseInt(aDownvoted));
             }
         }
 
@@ -130,32 +112,23 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         List<Fragment> pages = new ArrayList<>();
 
         final JokeFragment jokeFragment = new JokeFragment();
-        Bundle args = new Bundle();
-        mNumPages = getIntent().getIntExtra("numPages", 0);
-        args.putInt("numPages", mNumPages);
+        Bundle args = setupArgs();
+        int numPages = getIntent().getIntExtra("numPages", 0);
+        args.putInt("numPages", numPages);
         args.putString("purpose", "jokeViewer");
         args.putString("username", mUsername);
-        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
-        args.putSerializable("upvotes", (Serializable) mUpvoted);
-        args.putSerializable("downvotes", (Serializable) mDownvoted);
         jokeFragment.setArguments(args);
         pages.add(jokeFragment);
 
         JokeFragment highScoresFragment = new JokeFragment();
-        args = new Bundle();
+        args = setupArgs();
         args.putString("purpose", "highScores");
-        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
-        args.putSerializable("upvotes", (Serializable) mUpvoted);
-        args.putSerializable("downvotes", (Serializable) mDownvoted);
         highScoresFragment.setArguments(args);
         pages.add(highScoresFragment);
 
         JokeFragment favoritesFragment = new JokeFragment();
-        args = new Bundle();
+        args = setupArgs();
         args.putString("purpose", "favorites");
-        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
-        args.putSerializable("upvotes", (Serializable) mUpvoted);
-        args.putSerializable("downvotes", (Serializable) mDownvoted);
         favoritesFragment.setArguments(args);
         pages.add(favoritesFragment);
 
@@ -165,45 +138,57 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         submitJoke.setArguments(args);
         pages.add(submitJoke);
 
-        mDemoCollectionPagerAdapter =
-                new DemoCollectionPagerAdapter(getSupportFragmentManager(), pages);
+        mJustJokesPagerAdapter =
+                new JustJokesPagerAdapter(getSupportFragmentManager(), pages);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+        mViewPager.setAdapter(mJustJokesPagerAdapter);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+                //We do not need any specific action when the page is scrolled.
             }
 
+            //When a tab is selected, modify the tabs a bit.
             @Override
             public void onPageSelected(int position) {
                 TableLayout navigation = (TableLayout) findViewById(R.id.navigationTable);
+                //Removes the navigation buttons if we're not in the "Jokes" tab.
                 if (position == 0) {
                     navigation.setVisibility(View.VISIBLE);
                 } else{
                     navigation.setVisibility(View.GONE);
                 }
-                if (position != 3) {
-                    ((JokeFragment)mDemoCollectionPagerAdapter.getItem(position)).updateElements();
+                if (position != 3) { //When page != the submit joke page, update the elements to make
+                                     //sure they're up to date.
+                    ((JokeFragment)mJustJokesPagerAdapter.getItem(position)).updateElements();
                 }
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                //We do not need any specific action when the page is scrolled.
             }
         });
 
-        mDropDownValues = new String[mNumPages];
-        for (int i = 0; i < mDropDownValues.length; i++) {
-            mDropDownValues[i] = Integer.toString(i + 1);
+        String[] theDropDownValues = new String[numPages];
+        for (int i = 0; i < theDropDownValues.length; i++) {
+            theDropDownValues[i] = Integer.toString(i + 1);
         }
 
-        mDropDownPages = (Spinner) findViewById(R.id.dropDownPages);
+        Spinner theDropDownPages = (Spinner) findViewById(R.id.dropDownPages);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(JokesPage.this,
-                android.R.layout.simple_spinner_item, mDropDownValues);
-        mDropDownPages.setAdapter(adapter);
-        mDropDownPages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                android.R.layout.simple_spinner_item, theDropDownValues);
+        theDropDownPages.setAdapter(adapter);
+        theDropDownPages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * This method ensures that a different page of jokes is displayed when a user chooses a
+             * page number from the dropDownList.
+             * When a page i
+             * @param parent The parent object.
+             * @param view The View that this dropDown object lives in.
+             * @param position The position of the item selected, in the dropDownList.
+             * @param id Unknown parameter.
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 jokeFragment.changePage(position + 1);
@@ -220,6 +205,19 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
     }
 
     /**
+     * This method is simply used to remove redundant code, it initializes and returns a Bundle object
+     * with parameters that all of our Fragments need.
+     * @return Returns a Bundle with common arguments.
+     */
+    private Bundle setupArgs() {
+        Bundle args = new Bundle();
+        args.putSerializable("favoritesMap", (Serializable) mFavoriteJokes);
+        args.putSerializable("upvotes", (Serializable) mUpvoted);
+        args.putSerializable("downvotes", (Serializable) mDownvoted);
+        return args;
+    }
+
+    /**
      * This method creates the settings menu.
      *
      * @param menu Our settings/logout menu
@@ -232,8 +230,11 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         return true;
     }
 
+    /**
+     * Updates the RecyclerView object to ensure the elements are all displaying correctly.
+     */
     public void refreshPage() {
-        JokeFragment currentFragment = (JokeFragment) mDemoCollectionPagerAdapter.getItem(mViewPager.getCurrentItem());
+        JokeFragment currentFragment = (JokeFragment) mJustJokesPagerAdapter.getItem(mViewPager.getCurrentItem());
         currentFragment.updateRecyclerView();
     }
 
@@ -265,31 +266,53 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
      * This method overrides the back button, that way you can't use the back button
      * to close out of the app. Pressing the back button pops the joke list off the stack
      * so when you reopen the app you have to log in again.
-     *
      */
     @Override
     public void onBackPressed() {
         // Leaving blank to disable back button functionality.
     }
 
-    private class DemoCollectionPagerAdapter extends FragmentPagerAdapter {
+    /**
+     * This class is used to populate pages/tabs in our ViewPager object.
+     */
+    private class JustJokesPagerAdapter extends FragmentPagerAdapter {
+        /** The list of Fragments to include in our tabbed display. */
         private List<Fragment> myFragments;
 
-        public DemoCollectionPagerAdapter(FragmentManager fm, List<Fragment> theFragments) {
+        /**
+         * Constructor to initalize the fields.
+         * @param fm The FragmentManager to use.
+         * @param theFragments The list of Fragments to include in our tabs.
+         */
+        public JustJokesPagerAdapter(FragmentManager fm, List<Fragment> theFragments) {
             super(fm);
             this.myFragments = theFragments;
         }
 
+        /**
+         * This method returns a Fragment object that is at the ith index in our myFragments list.
+         * @param i The index of Fragment to return;
+         * @return A Fragment at the index i, in our list of Fragments.
+         */
         @Override
         public Fragment getItem(int i) {
             return myFragments.get(i);
         }
 
+        /**
+         * Returns the amount of Fragments in our list.
+         * @return The size of our Fragment list.
+         */
         @Override
         public int getCount() {
             return this.myFragments.size();
         }
 
+        /**
+         * Returns the page/tab title to display.
+         * @param position The fragment's position in the list of fragments.
+         * @return The corresponding title String.
+         */
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {

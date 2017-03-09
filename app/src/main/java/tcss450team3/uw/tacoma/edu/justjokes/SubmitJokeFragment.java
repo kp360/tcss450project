@@ -26,23 +26,26 @@ import java.net.URLEncoder;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link SubmitJokeFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This Fragment exists to enable the user to submit a Joke of their own.
  *
- * @author Vlad
- * @author Kyle
- *
- * 3/6/17
+ * @author Vlad 3/5/2017
+ * @author Kyle Phan 3/6/2017
  */
 public class SubmitJokeFragment extends Fragment {
+    /** The URL of the php file that handles Joke submission. */
     private static final String JOKE_SUB_URL
             = "http://cssgate.insttech.washington.edu/~_450bteam3/submitJoke.php?";
 
+    /** The EditText object that contains the Joke's title. */
     private EditText mJokeTitleEdit;
+
+    /** The EditText object that contains the Joke's setup. */
     private EditText mJokeSetupEdit;
+
+    /** The EditText object that contains the Joke's punchline. */
     private EditText mJokePunchlineEdit;
 
+    /** The current user's username. */
     private String mUsername;
 
     public SubmitJokeFragment() {
@@ -53,14 +56,16 @@ public class SubmitJokeFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment SubmitJokeFragment.
      */
     public static SubmitJokeFragment newInstance(String param1, String param2) {
         return new SubmitJokeFragment();
     }
 
+    /**
+     * This onCreate method simply retrieves the username value from the caller's Bundle file.
+     * @param savedInstanceState Stores data that was sent from the caller.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +74,14 @@ public class SubmitJokeFragment extends Fragment {
         }
     }
 
+    /**
+     * This method simply initializes our EditText fields, and adds an onClickListener to the submit
+     * and clear buttons that exist on this Fragment.
+     * @param inflater A LayoutInflater object, that is used to get a View.
+     * @param container A ViewGroup object that is also used to get a View.
+     * @param savedInstanceState Stores data that was sent from the caller.
+     * @return Returns the View object that was generated.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -83,7 +96,7 @@ public class SubmitJokeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (checkValidInput(v)) {
-                    submitJoke(buildEmailMessage(v), v);
+                    submitJoke(v);
                 }
 
             }
@@ -102,6 +115,12 @@ public class SubmitJokeFragment extends Fragment {
         return v;
     }
 
+    /**
+     * Verifies that the user's inputted text is valid.
+     * @param v A View object where we can display Toast messages.
+     * @return Returns a boolean, true if the user has inputted valid text in all the EditText boxes,
+     * and false if they haven't inputted valid text for all the EditText boxes.
+     */
     private boolean checkValidInput(View v) {
         if (mJokeTitleEdit.getText().length() < 5) {
             Toast.makeText(v.getContext(), "Please enter a valid joke title.", Toast.LENGTH_LONG)
@@ -120,58 +139,46 @@ public class SubmitJokeFragment extends Fragment {
         }
     }
 
+    /**
+     * Auto-generated method, not modified by us.
+     */
     @Override
     public void onDetach() {
         super.onDetach();
     }
 
-    private String buildEmailMessage(View v) {
-        StringBuilder sb = new StringBuilder("Joke Title: ");
-
-        try {
-            String jokeTitle = mJokeTitleEdit.getText().toString();
-            sb.append(jokeTitle);
-
-            String jokeSetup = mJokeSetupEdit.getText().toString();
-            sb.append("\nJoke Setup: ");
-            sb.append(jokeSetup);
-
-            String jokePunchline = mJokePunchlineEdit.getText().toString();
-            sb.append("\nJoke Punchline: ");
-            sb.append(jokePunchline);
-
-            sb.append("\nSubmitted by: ");
-            sb.append(mUsername);
-        }
-        catch(Exception e) {
-            Toast.makeText(v.getContext(), "Something wrong with the url" + e.getMessage(), Toast.LENGTH_LONG)
-                    .show();
-        }
-        return sb.toString();
-    }
-
-    public void submitJoke(String emailMessage, View v) {
+    /**
+     * Executes a SubmitJokeTask, which will handle submitting the user's Joke to our web server.
+     * @param v A View object where we can display Toast messages.
+     */
+    public void submitJoke(View v) {
         new SubmitJokeTask().execute(buildJokeURL(v));
     }
 
+    /**
+     * Builds a URL String that contains all of the user's Joke info, which we will submit to the
+     * server via a GET request. The user's username will also be included in the request.
+     * @param v A View object where we can display Toast messages.
+     * @return Returns the URL String that was built in this method.
+     */
     private String buildJokeURL(View v) {
 
         StringBuilder sb = new StringBuilder(JOKE_SUB_URL);
 
         try {
-            String courseId = mJokeTitleEdit.getText().toString();
+            String jokeTitle = mJokeTitleEdit.getText().toString();
             sb.append("jokeTitle=");
-            sb.append(courseId);
+            sb.append(URLEncoder.encode(jokeTitle, "UTF-8"));
 
 
-            String courseShortDesc = mJokeSetupEdit.getText().toString();
+            String jokeSetup = mJokeSetupEdit.getText().toString();
             sb.append("&jokeSetup=");
-            sb.append(URLEncoder.encode(courseShortDesc, "UTF-8"));
+            sb.append(URLEncoder.encode(jokeSetup, "UTF-8"));
 
 
-            String courseLongDesc = mJokePunchlineEdit.getText().toString();
+            String jokePunchline = mJokePunchlineEdit.getText().toString();
             sb.append("&jokePunchline=");
-            sb.append(URLEncoder.encode(courseLongDesc, "UTF-8"));
+            sb.append(URLEncoder.encode(jokePunchline, "UTF-8"));
 
             sb.append("&user=");
             sb.append(URLEncoder.encode(mUsername, "UTF-8"));
@@ -186,8 +193,17 @@ public class SubmitJokeFragment extends Fragment {
         return sb.toString();
     }
 
+    /**
+     * This class is used to submit the user's inputted text to our php file, which will then email
+     * that text to our private email account, where we can easily review them.
+     */
     private class SubmitJokeTask extends AsyncTask<String, Void, String> {
 
+        /**
+         * This methods handles accessing our php file.
+         * @param urls The URL of our php file.
+         * @return Returns the web server's response.
+         */
         @Override
         protected String doInBackground(String... urls) {
             String response = "";
@@ -218,11 +234,10 @@ public class SubmitJokeFragment extends Fragment {
 
 
         /**
-         * It checks to see if there was a problem with the URL(Network) which is when an
-         * exception is caught. It tries to call the parse Method and checks to see if it was successful.
-         * If not, it displays the exception.
+         * Notifies the user of what happened via Toast, and clears the EditText boxes if no errors
+         * occurred.
          *
-         * @param result
+         * @param result An error message, or the server's response/webpage's data.
          */
         @Override
         protected void onPostExecute(String result) {
