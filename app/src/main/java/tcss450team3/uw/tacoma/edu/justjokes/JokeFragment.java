@@ -44,6 +44,15 @@ public class JokeFragment extends Fragment {
     /** Part of the url for the php file that retrieves a list of 20 jokes. */
     private static final String JOKES_URL = "list.php?page=";
 
+    /** A String that denotes that the purpose of a particular instance is joke viewing. */
+    private static final String JOKE_VIEWER_PURPOSE = "jokeViewer";
+
+    /** A String that denotes that the purpose of a particular instance is viewing the high scores. */
+    private static final String HIGH_SCORES_PURPOSE = "highScores";
+
+    /** A String that denotes that the purpose of a particular instance is seeing the user's favorites. */
+    private static final String FAVORITES_PURPOSE = "favorites";
+
     /** A RecylerView object that handles smooth list scrolling. */
     private RecyclerView mRecyclerView;
 
@@ -135,11 +144,11 @@ public class JokeFragment extends Fragment {
      * clicked tab is updated/holds current values.
      */
     public void updateElements() {
-        if (mPurpose.equals("jokeViewer")) {
+        if (mPurpose.equals(JOKE_VIEWER_PURPOSE)) {
             mRecyclerView.setAdapter(mAdapter);
-        } else if (mPurpose.equals("highScores"))
+        } else if (mPurpose.equals(HIGH_SCORES_PURPOSE))
             new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
-        else { //mPurpose.equals("favorites")
+        else { //mPurpose.equals(FAVORITES_PURPOSE)
             updateRecyclerView();
         }
     }
@@ -150,9 +159,9 @@ public class JokeFragment extends Fragment {
      * */
     public void updateRecyclerView() {
         MyJokeRecyclerViewAdapter currAdapter = (MyJokeRecyclerViewAdapter) mRecyclerView.getAdapter();
-        if (mPurpose.equals("favorites"))
+        if (mPurpose.equals(FAVORITES_PURPOSE))
             currAdapter.checkFavorites();
-        else if (mPurpose.equals("highScores"))
+        else if (mPurpose.equals(HIGH_SCORES_PURPOSE))
             currAdapter.checkHighScores();
         currAdapter.notifyDataSetChanged();
     }
@@ -185,7 +194,7 @@ public class JokeFragment extends Fragment {
         }
 
         switch (mPurpose) {
-            case "jokeViewer":
+            case JOKE_VIEWER_PURPOSE:
                 final Button prevButton = (Button) getActivity().findViewById(R.id.prevButton);
                 final Button nextButton = (Button) getActivity().findViewById(R.id.nextButton);
 
@@ -214,12 +223,12 @@ public class JokeFragment extends Fragment {
                     }
                 });
                 break;
-            case "highScores":
+            case HIGH_SCORES_PURPOSE:
                 new DownloadJokesTask().execute(BASE_URL + "getHighScores.php");
                 break;
-            case "favorites":
+            case FAVORITES_PURPOSE:
                 Bundle args = new Bundle();
-                args.putSerializable("favorites", (Serializable) mFavorites);
+                args.putSerializable(FAVORITES_PURPOSE, (Serializable) mFavorites);
                 args.putSerializable("upvotes", (Serializable) mUpvoted);
                 args.putSerializable("downvotes", (Serializable) mDownvoted);
                 mRecyclerView.setAdapter(new MyJokeRecyclerViewAdapter(new ArrayList<Joke>(mFavorites.values()), mListener, false, args));
@@ -237,7 +246,7 @@ public class JokeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (mPurpose.equals("jokeViewer")) {
+        if (mPurpose.equals(JOKE_VIEWER_PURPOSE)) {
             mPageDB.updateCourses(mUsername, mCurrentPageNum);
         }
     }
@@ -373,13 +382,13 @@ public class JokeFragment extends Fragment {
             // Everything is good, show the list of courses.
             if (!courseList.isEmpty()) {
                 Bundle args = new Bundle();
-                args.putSerializable("favorites", (Serializable) mFavorites);
+                args.putSerializable(FAVORITES_PURPOSE, (Serializable) mFavorites);
                 args.putSerializable("upvotes", (Serializable) mUpvoted);
                 args.putSerializable("downvotes", (Serializable) mDownvoted);
 
                 //If this JokeFragment object is used from showing the high scores jokes, pass a
                 //parameter so that the jokes are numbered, 1-20.
-                if (mPurpose.equals("highScores"))
+                if (mPurpose.equals(HIGH_SCORES_PURPOSE))
                    mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, true, args);
                 else {
                    mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, false, args);

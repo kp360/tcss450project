@@ -278,11 +278,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             try {
-                Log.i("sdfsd",result);
                 JSONObject jsonObject = new JSONObject(result);
-                Log.i("sdf", "start");
                 String status = (String) jsonObject.get("result");
-                Log.i("sdf", "here");
                 if (status.equals("success")) {
                     String username = mUserUsernameEditText.getText().toString();
 
