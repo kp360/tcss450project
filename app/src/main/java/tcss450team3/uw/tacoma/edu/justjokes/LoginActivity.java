@@ -78,6 +78,10 @@ public class LoginActivity extends AppCompatActivity {
 
         mSharedPreferences = getSharedPreferences(getString(R.string.REMEMBER_ME), Context.MODE_PRIVATE);
 
+        /**
+         * If the user selected remember me the last time they signed in,
+         * fills EditText boxes with their relevant information.
+         */
         if (mSharedPreferences.getBoolean(getString(R.string.REMEMBERED), false)) {
             mRememberMeCheckBox.setChecked(true);
             mUserUsernameEditText.setText(mSharedPreferences.getString(getString(R.string.RM_USERNAME), ""), TextView.BufferType.EDITABLE);
