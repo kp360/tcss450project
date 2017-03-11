@@ -60,7 +60,7 @@ public class JokeTest {
                             "\"numDVotes\":\"2\",\"jokeTitle\":\"Holy Water Joke\"," +
                             "\"jokeSetup\":\"How do you make holy water?\",\"jokePunchline\":" +
                             "\"Boil the hell out of it!\"}]";
-        assertNull(testJoke.parseCourseJSON(testJSON, jokeList));
+        assertNull(testJoke.parseJokeJSON(testJSON, jokeList));
     }
     /**
      * This method tests the JSON parsing method.
@@ -76,7 +76,7 @@ public class JokeTest {
                 "\"numDVotes\":\"2\",\"jokeTitle\":\"Holy Water Joke\"," +
                 "\"jokeSetup\":\"How do you make holy water?\",\"jokePunchline\":" +
                 "\"Boil the hell out of it!\"}]";
-        assertNull(testJoke.parseCourseJSON(testJSON, jokeList));
+        assertNull(testJoke.parseJokeJSON(testJSON, jokeList));
     }
 
     /**
