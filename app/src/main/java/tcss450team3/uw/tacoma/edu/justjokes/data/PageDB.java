@@ -92,10 +92,11 @@ public class PageDB {
                 null                                 // The sort order
         );
         c.moveToFirst();
-        if (c.getCount() == 0)
-            return -1;
-        else
-            return c.getInt(0);
+        int pageNumber = -1; //-1 means that our query didn't return anything.
+        if (c.getCount() > 0)
+            pageNumber = c.getInt(0);
+        c.close(); //Closing this to avoid warning messages about memory leaks.
+        return pageNumber;
     }
 
     /** A class that helps us manage our PageDB table. */

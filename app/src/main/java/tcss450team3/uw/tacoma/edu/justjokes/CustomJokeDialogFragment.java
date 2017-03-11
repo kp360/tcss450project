@@ -463,7 +463,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
                             mVotingStatus = NO_VOTE;
                     }
 
-                    ((JokesPage) getActivity()).refreshPage();
+                    updateListElements(); //Refreshes the list fragment to reflect the changes
+                                            // made by the user.
                 } else {
                     resetVote();
 
@@ -543,6 +544,17 @@ public class CustomJokeDialogFragment extends DialogFragment {
     }
 
     /**
+     * Accesses the parent activity (JokesPage), and refreshes the list if getActivity() doesn't
+     * return null. It returned null once, before we had a null test implemented, and our app
+     * crashed. We haven't been able to re-create the crash, but we thought it best to be safe.
+     */
+    private void updateListElements() {
+        JokesPage parentActivity = (JokesPage) getActivity();
+        if (parentActivity != null)
+            parentActivity.refreshPage();
+    }
+
+    /**
      * This class handles accessing the web server to update the user's favorite.
      */
     private class EditFavorite extends AsyncTask<String, Void, String> {
@@ -597,9 +609,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
                     else
                         isFavorite = true;
 
-                    ((JokesPage) getActivity()).refreshPage(); //Refreshes the list fragment to
-                                                               //reflect the changes made by the
-                                                               //user.
+                    updateListElements(); //Refreshes the list fragment to reflect the changes
+                                            // made by the user.
                 } else {
                     resetFavorite();
                     Toast.makeText(getActivity().getApplicationContext(), "Failed to update: " + mCurrentJoke.getJokeTitle()
