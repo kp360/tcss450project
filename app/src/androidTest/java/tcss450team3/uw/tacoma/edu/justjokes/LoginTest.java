@@ -135,7 +135,7 @@ public class LoginTest {
     @Test
     public void testLoginRememberMeLogin() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(4000);
         } catch (InterruptedException e){
 
         }
