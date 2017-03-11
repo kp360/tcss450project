@@ -70,7 +70,7 @@ public class LoginTest {
     @Test
     public void testLoginInvalidPasswordTooShort() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -89,7 +89,7 @@ public class LoginTest {
     @Test
     public void testLoginInvalidUsername() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -113,7 +113,7 @@ public class LoginTest {
     @Test
     public void testLoginRememberMeCheck() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -155,7 +155,7 @@ public class LoginTest {
     @Test
     public void testLoginRememberMeUncheck() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -172,7 +172,7 @@ public class LoginTest {
     @Test
     public void testLoginValidInput() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -191,7 +191,7 @@ public class LoginTest {
     @Test
     public void testRegisterInvalidPassword() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -210,7 +210,7 @@ public class LoginTest {
     @Test
     public void testRegisterInvalidUsername() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
@@ -229,7 +229,7 @@ public class LoginTest {
     @Test
     public void testRegisterValidInput() {
         try{
-            Thread.sleep(2500);
+            Thread.sleep(3000);
         } catch (InterruptedException e){
 
         }
