@@ -1,17 +1,13 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -50,13 +46,6 @@ public class LoginActivity extends AppCompatActivity {
     /** The EditText where users type their password. */
     private EditText mUserPasswordEditText;
 
-    /** The CheckBox to trigger remember me. */
-    private CheckBox mRememberMeCheckBox;
-
-    /** The SharedPreferences object storing username/password */
-    private SharedPreferences mSharedPreferences;
-
-
     /**
      * Method called when this Activity is created.
      *
@@ -72,40 +61,11 @@ public class LoginActivity extends AppCompatActivity {
 
         mUserUsernameEditText = (EditText) findViewById(R.id.usernameEditText);
         mUserPasswordEditText = (EditText) findViewById(R.id.passwordEditText);
-        mRememberMeCheckBox = (CheckBox) findViewById(R.id.saveLoginCheckBox);
-
-        mSharedPreferences = getSharedPreferences(getString(R.string.REMEMBER_ME), Context.MODE_PRIVATE);
-
-        /**
-         * If the user selected remember me the last time they signed in,
-         * fills EditText boxes with their relevant information.
-         */
-        if (mSharedPreferences.getBoolean(getString(R.string.REMEMBERED), false)) {
-            mRememberMeCheckBox.setChecked(true);
-            mUserUsernameEditText.setText(mSharedPreferences.getString(getString(R.string.RM_USERNAME), ""), TextView.BufferType.EDITABLE);
-            mUserPasswordEditText.setText(mSharedPreferences.getString(getString(R.string.RM_PASSWORD), ""), TextView.BufferType.EDITABLE);
-        }
-
-        mRememberMeCheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mRememberMeCheckBox.isChecked()) {
-                    storeLoginInfo();
-                } else {
-                    removeLoginInfo();
-                }
-            }
-        });
 
         Button userLoginButton = (Button) findViewById(R.id.loginButton);
         userLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRememberMeCheckBox.isChecked()) {
-                    storeLoginInfo();
-                } else {
-                    removeLoginInfo();
-                }
                 String url = buildURL(v, LOGIN_URL);
                 login(url);
             }
@@ -115,11 +75,6 @@ public class LoginActivity extends AppCompatActivity {
         userRegisButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mRememberMeCheckBox.isChecked()) {
-                    storeLoginInfo();
-                } else {
-                    removeLoginInfo();
-                }
                 String url = buildURL(v, REGIS_URL);
                 register(url);
             }
@@ -136,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void login(String url) {
         DownloadUsersTask task = new DownloadUsersTask();
-        task.execute(url);
+        task.execute(new String[]{url.toString()});
     }
 
     /**
@@ -149,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void register(String url) {
         RegisUserTask task = new RegisUserTask();
-        task.execute(url);
+        task.execute(new String[]{url.toString()});
     }
 
     /**
@@ -185,44 +140,6 @@ public class LoginActivity extends AppCompatActivity {
                     .show();
         }
         return sb.toString();
-    }
-
-    /**
-     * Helper method used to store the entered username and password
-     * when the user checks the "Remember Me" box.
-     */
-    private void storeLoginInfo() {
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_USERNAME), mUserUsernameEditText.getText().toString())
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_PASSWORD), mUserPasswordEditText.getText().toString())
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putBoolean(getString(R.string.REMEMBERED), true)
-                .commit();
-    }
-
-    /**
-     * Helper method used to store the entered username and password
-     * when the user unchecks the "Remember Me" box.
-     */
-    private void removeLoginInfo() {
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_USERNAME), "")
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putString(getString(R.string.RM_PASSWORD), "")
-                .commit();
-        mSharedPreferences
-                .edit()
-                .putBoolean(getString(R.string.REMEMBERED), false)
-                .commit();
     }
 
     /**
@@ -282,19 +199,40 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 String status = (String) jsonObject.get("result");
-                if (status.equals("success")) {
+                String admin = (String) jsonObject.get("admin");
+                if (status.equals("success") && admin.equals("0")) {
                     String username = mUserUsernameEditText.getText().toString();
-
                     Toast.makeText(getApplicationContext(), "Welcome back, " + username + "!"
                             , Toast.LENGTH_LONG)
                             .show();
 
-                    double totalNumOfJokes = Double.parseDouble((String) jsonObject.get("numJokes"));
-                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes / NUM_JOKES_PER_PAGE);
+                    double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
+                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
+                     
+                    JSONArray favoriteJokes = (JSONArray) jsonObject.get("favorites");
+                    String upvoted = (String)jsonObject.get("upvotes");
+                    String downvoted = (String)jsonObject.get("downvotes");
+
+                    Intent intent = new Intent(getApplicationContext(), JokesPage.class);
+                    intent.putExtra("numPages", numPagesOfJokes);
+                    intent.putExtra("favorites", favoriteJokes.toString());
+                    intent.putExtra("upvotes", upvoted);
+                    intent.putExtra("downvotes", downvoted);
+                    intent.putExtra("username", username);
+                    startActivity(intent);
+                    finish();
+                } else if (status.equals("success") && admin.equals("1")) {
+                    String username = mUserUsernameEditText.getText().toString();
+                    Toast.makeText(getApplicationContext(), "Welcome back, " + username + "!"
+                            , Toast.LENGTH_LONG)
+                            .show();
+
+                    double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
+                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
 
                     JSONArray favoriteJokes = (JSONArray) jsonObject.get("favorites");
-                    String upvoted = (String) jsonObject.get("upvotes");
-                    String downvoted = (String) jsonObject.get("downvotes");
+                    String upvoted = (String)jsonObject.get("upvotes");
+                    String downvoted = (String)jsonObject.get("downvotes");
 
                     Intent intent = new Intent(getApplicationContext(), JokesPage.class);
                     intent.putExtra("numPages", numPagesOfJokes);
@@ -311,9 +249,8 @@ public class LoginActivity extends AppCompatActivity {
                             .show();
                 }
             } catch (JSONException e) {
-                Toast.makeText(getApplicationContext(), "Unable to login, " +
-                        "please check your internet connection."
-                        , Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Something wrong with the data " +
+                        e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
         }
@@ -339,6 +276,7 @@ public class LoginActivity extends AppCompatActivity {
             HttpURLConnection urlConnection = null;
             for (String url : urls) {
                 try {
+                    System.out.println("register doinbackground");
                     URL urlObject = new URL(url);
                     urlConnection = (HttpURLConnection) urlObject.openConnection();
 
@@ -378,17 +316,18 @@ public class LoginActivity extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(result);
                 String status = (String) jsonObject.get("result");
                 if (status.equals("success")) {
-                    Toast.makeText(getApplicationContext(), "User successfully registered!"
+                    Toast.makeText(getApplicationContext(), "User successfully added!"
                             , Toast.LENGTH_LONG)
                             .show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Failed to register: "
+                    Toast.makeText(getApplicationContext(), "Failed to add: "
                                     + jsonObject.get("error")
                             , Toast.LENGTH_LONG)
                             .show();
                 }
             } catch (JSONException e) {
-                Toast.makeText(getApplicationContext(), "Please check your internet connection.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Something wrong with the data" +
+                        e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
