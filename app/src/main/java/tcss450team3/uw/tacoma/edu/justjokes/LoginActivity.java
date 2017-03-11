@@ -199,29 +199,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 String status = (String) jsonObject.get("result");
-                String admin = (String) jsonObject.get("admin");
-                if (status.equals("success") && admin.equals("0")) {
-                    String username = mUserUsernameEditText.getText().toString();
-                    Toast.makeText(getApplicationContext(), "Welcome back, " + username + "!"
-                            , Toast.LENGTH_LONG)
-                            .show();
-
-                    double totalNumOfJokes = Double.parseDouble((String)jsonObject.get("numJokes"));
-                    int numPagesOfJokes = (int) Math.ceil(totalNumOfJokes/NUM_JOKES_PER_PAGE);
-                     
-                    JSONArray favoriteJokes = (JSONArray) jsonObject.get("favorites");
-                    String upvoted = (String)jsonObject.get("upvotes");
-                    String downvoted = (String)jsonObject.get("downvotes");
-
-                    Intent intent = new Intent(getApplicationContext(), JokesPage.class);
-                    intent.putExtra("numPages", numPagesOfJokes);
-                    intent.putExtra("favorites", favoriteJokes.toString());
-                    intent.putExtra("upvotes", upvoted);
-                    intent.putExtra("downvotes", downvoted);
-                    intent.putExtra("username", username);
-                    startActivity(intent);
-                    finish();
-                } else if (status.equals("success") && admin.equals("1")) {
+                if (status.equals("success")) {
                     String username = mUserUsernameEditText.getText().toString();
                     Toast.makeText(getApplicationContext(), "Welcome back, " + username + "!"
                             , Toast.LENGTH_LONG)
