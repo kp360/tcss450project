@@ -3,22 +3,17 @@ package tcss450team3.uw.tacoma.edu.justjokes;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import tcss450team3.uw.tacoma.edu.justjokes.JokeFragment.OnListFragmentInteractionListener;
 import tcss450team3.uw.tacoma.edu.justjokes.joke.Joke;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

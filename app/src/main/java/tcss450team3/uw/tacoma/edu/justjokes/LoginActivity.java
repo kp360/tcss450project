@@ -25,8 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import static java.security.AccessController.getContext;
-
 /**
  *  The purpose of this activity is for the user to log in to an existing
  *  account in our database, or to register and add a user to the database.

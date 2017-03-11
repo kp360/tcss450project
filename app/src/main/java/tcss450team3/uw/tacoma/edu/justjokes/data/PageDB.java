@@ -45,7 +45,7 @@ public class PageDB {
      * @param pageNum The page of jokes that they were last visiting.
      * @return true or false
      */
-    public boolean insertCourse(String username, int pageNum) {
+    public boolean insertRow(String username, int pageNum) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("username", username);
         contentValues.put("pageNum", pageNum);
@@ -60,7 +60,7 @@ public class PageDB {
      * @param pageNum The page of jokes that they were last visiting.
      * @return true or false
      */
-    public boolean updateCourses(String username, int pageNum) {
+    public boolean updatePageNum(String username, int pageNum) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("username", username);
         contentValues.put("pageNum", pageNum);

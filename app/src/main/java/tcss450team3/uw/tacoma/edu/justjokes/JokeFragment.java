@@ -1,7 +1,6 @@
 package tcss450team3.uw.tacoma.edu.justjokes;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import tcss450team3.uw.tacoma.edu.justjokes.data.PageDB;
@@ -31,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A fragment that lists 20 jokes, displaying only their title.
+ * A Fragment that lists 20 jokes, displaying only their title.
  *
  * @author Vlad 3/6/2017
  */
@@ -204,7 +202,7 @@ public class JokeFragment extends Fragment {
                 mCurrentPageNum = mPageDB.getPage(mUsername);
                 if (mCurrentPageNum == -1) {
                     mCurrentPageNum = 1;
-                    mPageDB.insertCourse(mUsername, mCurrentPageNum);
+                    mPageDB.insertRow(mUsername, mCurrentPageNum);
                 }
 
                 dropDownList.setSelection(mCurrentPageNum - 1);
@@ -247,7 +245,7 @@ public class JokeFragment extends Fragment {
     public void onPause() {
         super.onPause();
         if (mPurpose.equals(JOKE_VIEWER_PURPOSE)) {
-            mPageDB.updateCourses(mUsername, mCurrentPageNum);
+            mPageDB.updatePageNum(mUsername, mCurrentPageNum);
         }
     }
 
@@ -370,8 +368,8 @@ public class JokeFragment extends Fragment {
                 return;
             }
 
-            List<Joke> courseList = new ArrayList<Joke>();
-            result = Joke.parseCourseJSON(result, courseList);
+            List<Joke> jokeList = new ArrayList<Joke>();
+            result = Joke.parseJokeJSON(result, jokeList);
             // Something wrong with the JSON returned.
             if (result != null) {
                 Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_LONG)
@@ -379,8 +377,8 @@ public class JokeFragment extends Fragment {
                 return;
             }
 
-            // Everything is good, show the list of courses.
-            if (!courseList.isEmpty()) {
+            // Everything is good, show the list of jokes.
+            if (!jokeList.isEmpty()) {
                 Bundle args = new Bundle();
                 args.putSerializable(FAVORITES_PURPOSE, (Serializable) mFavorites);
                 args.putSerializable("upvotes", (Serializable) mUpvoted);
@@ -389,9 +387,9 @@ public class JokeFragment extends Fragment {
                 //If this JokeFragment object is used from showing the high scores jokes, pass a
                 //parameter so that the jokes are numbered, 1-20.
                 if (mPurpose.equals(HIGH_SCORES_PURPOSE))
-                   mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, true, args);
+                   mAdapter = new MyJokeRecyclerViewAdapter(jokeList, mListener, true, args);
                 else {
-                   mAdapter = new MyJokeRecyclerViewAdapter(courseList, mListener, false, args);
+                   mAdapter = new MyJokeRecyclerViewAdapter(jokeList, mListener, false, args);
                 }
                 mRecyclerView.setAdapter(mAdapter);
             }

@@ -127,7 +127,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
     }
 
     /**
-     * Auto-generated method, not modified by us.
+     * Initializes some fields by grabbing values from the arguments Bundle.
      *
      * @param savedInstanceState Stores data that was sent from the caller.
      */
@@ -196,10 +196,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         mUpvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (mCurrentlyBusy)
+                if (isBusy())
                     return;
-                else
-                    mCurrentlyBusy = true;
 
                 mAction = "Upvote";
 
@@ -230,10 +228,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         mDownvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (mCurrentlyBusy)
+                if (isBusy())
                     return;
-                else
-                    mCurrentlyBusy = true;
 
                 mAction = "Downvote";
 
@@ -264,10 +260,8 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
         mFavoriteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                if (mCurrentlyBusy)
+                if (isBusy())
                     return;
-                else
-                    mCurrentlyBusy = true;
 
                 if (isFavorite) { //If already favorited, unfavorite the Joke.
                     mFavoriteButton.setMaxWidth(56);
@@ -282,11 +276,25 @@ public class CustomJokeDialogFragment extends DialogFragment {
                 updateCountTextViews();
                 String url = buildFavoritesURL();
                 Log.e("", url);
-                new EditFavorite().execute(new String[]{url});
+                new EditFavorite().execute(url);
             }
         });
 
         return builder.create();
+    }
+
+    /**
+     * This method checks if the app is currently in the middle of up/downvoting or favoriting
+     * something.
+     * @return Returns whether or not the app is running a EditVote or EditFavorite task.
+     */
+    private boolean isBusy() {
+        if (mCurrentlyBusy) {
+            return true;
+        } else {
+            mCurrentlyBusy = true;
+            return false;
+        }
     }
 
     /**
@@ -329,7 +337,7 @@ public class CustomJokeDialogFragment extends DialogFragment {
 
     /**
      * Builds the URL to modify the up/downvote field in our database for the current joke.
-     * @return
+     * @return Returns the url to send a GET request to our server.
      */
     private String buildURL() {
         StringBuilder sb = new StringBuilder(BASE_URL);

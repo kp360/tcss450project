@@ -19,30 +19,30 @@ public class Joke implements Serializable, Comparable {
             , JOKE_SETUP = "jokeSetup", JOKE_PUNCHLINE = "jokePunchline"
             , NUM_UPVOTES = "numUVotes", NUM_DOWNVOTES = "numDVotes";
 
-    /** A Joke's unique ID number. */
+    /** A joke's unique ID number. */
     private int mJokeID;
 
-    /** A Joke's title. (i.e. The Monkey Joke) */
+    /** A joke's title. (i.e. The Monkey Joke) */
     private String mJokeTitle;
 
-    /** A Joke's setup/beginning. */
+    /** A joke's setup/beginning. */
     private String mJokeSetup;
 
-    /** A Joke's ending. */
+    /** A joke's ending. */
     private String mJokePunchline;
 
-    /** A Joke's ending. */
+    /** A joke's ending. */
     private int mNumUpvotes;
 
-    /** A Joke's ending. */
+    /** A joke's ending. */
     private int mNumDownvotes;
 
     /**
      * Constructor to initialize all the fields.
-     * @param jokeID The Joke's unique ID number.
-     * @param jokeTitle The Joke's title.
-     * @param jokeSetup The Joke's beginning.
-     * @param jokePunchline The Joke's conclusion.
+     * @param jokeID The joke's unique ID number.
+     * @param jokeTitle The joke's title.
+     * @param jokeSetup The joke's beginning.
+     * @param jokePunchline The joke's conclusion.
      * @param numUpvotes The number of upvotes a joke has.
      * @param numDownvotes The number of downvotes a joke has.
      */
@@ -62,7 +62,7 @@ public class Joke implements Serializable, Comparable {
      * @param jokeList The list to store all of the parsed Joke objects in.
      * @return reason or null if successful.
      */
-    public static String parseCourseJSON(String jokeJSON, List<Joke> jokeList) {
+    public static String parseJokeJSON(String jokeJSON, List<Joke> jokeList) {
         String reason = null;
         if (jokeJSON != null) {
             try {
@@ -89,7 +89,7 @@ public class Joke implements Serializable, Comparable {
      * @param jokeMap A Map to hold the Joke ids and Joke objects.
      * @return reason or null if successful.
      */
-    public static String parseCourseJSON(String jokeJSON, Map<Integer, Joke> jokeMap) {
+    public static String parseJokeJSON(String jokeJSON, Map<Integer, Joke> jokeMap) {
         String reason = null;
         if (jokeJSON != null) {
             try {

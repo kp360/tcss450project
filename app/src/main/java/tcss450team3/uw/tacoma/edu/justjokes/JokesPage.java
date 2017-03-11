@@ -105,7 +105,7 @@ public class JokesPage extends AppCompatActivity implements JokeFragment.OnListF
         }
 
         mFavoriteJokes = new HashMap<Integer, Joke>();
-        Joke.parseCourseJSON(getIntent().getStringExtra("favorites"), mFavoriteJokes);
+        Joke.parseJokeJSON(getIntent().getStringExtra("favorites"), mFavoriteJokes);
 
         mUsername = getIntent().getStringExtra("username");
 
